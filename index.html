@@ -1,0 +1,2142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KOL Engagement · Agentic MSL Workspace</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef1f6; --panel: #ffffff; --panel-2: #f1f4f9; --panel-3: #e4e9f1;
+    --border: #d7dde8; --accent: #2f6bff; --accent-2: #7c5cff;
+    --good: #1fa97a; --warn: #c77d00; --bad: #e0484d;
+    --navy: #08203f; --navy-2: #16386e;
+    --text: #1c2733; --muted: #6a7686; --radius: 12px;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --sans: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); }
+
+  .shell { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+  /* ===== top tab bar (fixed) ===== */
+  .apptabs { flex: 0 0 auto; height: 52px; display: flex; align-items: center; gap: 4px; padding: 0 18px; background: linear-gradient(90deg, var(--navy), var(--navy-2)); border-bottom: 2px solid #2f6bff; box-shadow: 0 2px 8px rgba(8,32,63,.25); }
+  .apptabs .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 13.5px; margin-right: 22px; color: #fff; }
+  .apptabs .brand .b { width: 30px; height: 30px; border-radius: 8px; background: #fff; padding: 4px; box-sizing: border-box; display: grid; place-items: center; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+  .apptabs .brand .b svg { width: 100%; height: 100%; display: block; }
+  .atab { padding: 9px 18px; border-radius: 9px; font-size: 13px; color: #aebfda; cursor: pointer; border: 1px solid transparent; display: flex; align-items: center; gap: 7px; transition: all .15s; }
+  .atab:hover { color: #fff; background: rgba(255,255,255,.07); }
+  .atab.active { color: #fff; background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.22); font-weight: 600; }
+  .apptabs .spacer { flex: 1; }
+  .apptabs .hbtn { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.22); border-radius: 8px; padding: 7px 11px; font-size: 12.5px; cursor: pointer; margin-left: 6px; }
+  .apptabs .hbtn:hover { border-color: #fff; }
+  .apptabs .conn-pill { background: rgba(255,255,255,.12); color: #dce8fa; border: 1px solid rgba(255,255,255,.22); margin-left: 6px; }
+  .apptabs .who { font-size: 12px; color: #b8cae4; display: flex; align-items: center; gap: 8px; margin-left: 10px; }
+  .role-select { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.28); border-radius: 8px; padding: 6px 10px; font-size: 12px; font-family: var(--sans); cursor: pointer; }
+  .role-select option { color: #1c2733; }
+  .role-select:focus { outline: none; border-color: #4f8cff; }
+  .role-label { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.28); border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 600; }
+
+  .appview { flex: 1 1 auto; min-height: 0; display: none; }
+  .appview.active { display: flex; flex-direction: column; }
+
+  /* ===== footer (fixed) ===== */
+  footer { flex: 0 0 auto; display: flex; flex-direction: column; background: var(--navy); }
+  .foot-tag { display: flex; align-items: center; height: 30px; padding: 0 14px; font-size: 9.5px; color: #cdddf2; background: var(--navy); border-top: 2px solid #2f6bff; }
+  .foot-tag .fdot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); margin-right: 6px; box-shadow: 0 0 6px var(--good); flex: 0 0 auto; animation: dotPulse 1.8s ease-in-out infinite; }
+  .foot-tag .seg { flex: 1; text-align: center; padding: 0 9px; border-right: 1px solid rgba(255,255,255,.14); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .foot-tag .seg:last-child { border-right: none; }
+  .foot-tag b { color: #fff; font-weight: 600; }
+  .foot-metrics { display: grid; grid-template-columns: repeat(7, 1fr); background: #fff; border-top: 1px solid var(--border); }
+  .fmetric { padding: 9px 12px; border-right: 1px solid var(--border); text-align: center; }
+  .fmetric:last-child { border-right: none; }
+  .fmetric .h { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .fmetric .big { font-size: 18px; font-weight: 800; margin-top: 2px; }
+  .fmetric .d { font-size: 10.5px; color: #44505f; margin-top: 1px; }
+  .fmetric .s { font-size: 9.5px; color: #93a0b0; margin-top: 1px; }
+  .c-blue { color: #2f6bff; } .c-green { color: #1fa97a; } .c-purple { color: #7c5cff; }
+  @media (max-width: 900px) { .fmetric .s { display: none; } }
+
+  /* ===== Dashboard ===== */
+  .dash { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: 14px 20px 16px; }
+  .dash-head { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 12px; flex: 0 0 auto; }
+  .dash-head h2 { margin: 0; font-size: 18px; } .dash-head .role { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .dash-head .spacer { flex: 1; }
+  .src { font-size: 11.5px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; margin-right: 8px; }
+  .src .d { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); } .src.live .d { background: var(--good); }
+  .hbtn { background: var(--panel-2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 7px 12px; font-size: 12.5px; cursor: pointer; }
+  .hbtn:hover { border-color: var(--accent); }
+  .focus-banner { display: flex; align-items: center; gap: 26px; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; margin-bottom: 14px; flex-wrap: wrap; box-shadow: 0 1px 3px rgba(20,30,50,.04); }
+  .fb-item .l { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; } .fb-item .v { font-size: 15px; font-weight: 600; margin-top: 3px; }
+  .statusbig { margin-left: auto; font-size: 12px; font-weight: 700; padding: 7px 15px; border-radius: 999px; }
+  .statusbig.progress { background: rgba(199,125,0,.14); color: #a86700; } .statusbig.done { background: rgba(31,169,122,.14); color: #137a57; } .statusbig.idle { background: rgba(106,118,134,.14); color: #5a6675; }
+  .stat-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 10px; }
+  .stat { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 6px 11px; box-shadow: 0 1px 3px rgba(20,30,50,.04); }
+  .stat .v { font-size: 18px; font-weight: 700; color: var(--accent); } .stat.g .v { color: var(--good); }
+  .stat .l { font-size: 10.5px; font-weight: 600; color: var(--text); margin-top: 1px; } .stat .sub2 { font-size: 8.5px; font-weight: 500; color: #7a8798; margin-top: 2px; }
+  .dash-2col { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+  .dash-2col.grow { flex: 1 1 auto; min-height: 0; }
+  @media (max-width: 1300px) { .dash-2col { grid-template-columns: 1.4fr 1fr; } .dash-chat { display: none; } }
+  @media (max-width: 1100px) { .dash-2col { grid-template-columns: 1fr; } .stat-row { grid-template-columns: repeat(4, 1fr); } }
+  /* Dashboard assistant chat */
+  .panel.scrollpanel.dash-chat { display: none; }
+  .dash-chat .dc-ctx { font-weight: 400; color: var(--accent); font-size: 10.5px; margin-left: 4px; }
+  .dc-msgs { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 2px 2px 8px; }
+  .dc-msg { max-width: 92%; padding: 8px 11px; border-radius: 11px; font-size: 11.5px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; animation: msgIn .25s ease both; }
+  .dc-msg.user { align-self: flex-end; background: linear-gradient(135deg, var(--accent), #2a5fe0); color: #fff; border-bottom-right-radius: 4px; }
+  .dc-msg.bot { align-self: flex-start; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 4px; }
+  .dc-msg.bot.ok { border-color: var(--good); background: rgba(31,169,122,.08); }
+  .dc-msg.dc-action { border-color: var(--warn); background: rgba(240,165,0,.10); max-width: 100%; }
+  .dc-msg .dc-acts { display: flex; gap: 7px; margin-top: 9px; }
+  .dc-msg .dc-acts button { border: none; border-radius: 8px; padding: 7px 11px; font-size: 11px; font-weight: 700; cursor: pointer; transition: transform .12s, box-shadow .12s; }
+  .dc-msg .dc-acts button:hover { transform: translateY(-1px); }
+  .dc-msg .dc-acts .dc-ok { background: var(--good); color: #fff; box-shadow: 0 2px 6px rgba(31,169,122,.3); }
+  .dc-msg .dc-acts .dc-no { background: #fff; color: #d8392b; border: 1px solid #f0c4be; }
+  .dc-input { display: flex; gap: 7px; flex: 0 0 auto; padding-top: 8px; border-top: 1px solid var(--border); }
+  .dc-input input { flex: 1; min-width: 0; border: 1px solid var(--border); border-radius: 9px; padding: 9px 11px; font-size: 12px; font-family: var(--sans); background: #fbfcfe; }
+  .dc-input input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(47,107,255,.12); }
+  .dc-input button { flex: 0 0 auto; border: none; border-radius: 9px; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; padding: 0 14px; cursor: pointer; transition: background .15s, transform .12s; }
+  .dc-input button:hover { background: #2a5fe0; transform: translateY(-1px); }
+  .panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 15px 17px; box-shadow: 0 1px 3px rgba(20,30,50,.04); }
+  .panel h3 { margin: 0 0 12px; font-size: 13px; }
+  .panel.scrollpanel { display: flex; flex-direction: column; min-height: 0; overflow: hidden; padding-bottom: 8px; }
+  .panel.scrollpanel h3 { flex: 0 0 auto; }
+  .pipescroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+  .area-row { padding: 9px 0; border-bottom: 1px solid var(--border); } .area-row:last-child { border-bottom: none; }
+  .area-row .top { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .area-row .ta { font-weight: 600; } .area-row .dis { color: var(--muted); font-size: 12px; } .area-row .cnt { margin-left: auto; font-weight: 700; color: var(--good); }
+  .area-bar { height: 5px; border-radius: 3px; background: var(--panel-3); margin-top: 6px; overflow: hidden; } .area-bar > div { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+
+  /* pipeline stepper */
+  .step { display: flex; align-items: flex-start; gap: 13px; padding: 11px 0; position: relative; }
+  .step .dotwrap { display: flex; align-items: center; gap: 5px; cursor: pointer; flex: 0 0 auto; position: relative; z-index: 2; }
+  .step .lchev { font-size: 11px; color: var(--muted); }
+  .step .dot { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; border: 2px solid var(--border); background: #fff; color: var(--muted); position: relative; z-index: 2; }
+  .step:not(:last-child)::before { content: ""; position: absolute; left: 12px; top: 28px; bottom: -12px; width: 2px; background: var(--border); z-index: 0; }
+  .step.done .dot { background: var(--good); border-color: var(--good); color: #fff; } .step.done:not(:last-child)::before { background: var(--good); }
+  .step.progress .dot { border-color: var(--warn); color: var(--warn); box-shadow: 0 0 7px rgba(199,125,0,.45); }
+  @keyframes breathe2 { 0%,100% { box-shadow: 0 0 0 0 rgba(199,125,0,.3); } 50% { box-shadow: 0 0 0 5px rgba(199,125,0,.12); } }
+  .step.next .dot { border-color: var(--accent); color: var(--accent); }
+  .step .sbody { flex: 1; min-width: 0; }
+  .step .shead { display: flex; align-items: center; gap: 8px; }
+  .step .shead .sleft { flex: 1; min-width: 0; }
+  .step .sname { font-size: 13px; font-weight: 600; } .step .smeta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .stag { font-size: 9.5px; font-weight: 700; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; align-self: center; }
+  .stag.done { background: rgba(31,169,122,.14); color: #137a57; } .stag.progress { background: rgba(199,125,0,.14); color: #a86700; } .stag.next { background: rgba(47,107,255,.14); color: #2f6bff; } .stag.pending { background: rgba(106,118,134,.12); color: #6a7686; }
+  .srun { align-self: center; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); border-radius: 7px; padding: 5px 11px; font-size: 11px; cursor: pointer; }
+  .srun:hover { border-color: var(--accent); }
+  .subtasks { list-style: none; margin: 6px 0 0; padding: 0; max-height: 0; overflow: hidden; transition: max-height .25s ease; }
+  .subtasks.open { max-height: 360px; }
+  .subtasks li { font-size: 11.5px; color: var(--muted); padding: 4px 0 4px 18px; position: relative; line-height: 1.4; }
+  .subtasks li::before { content: "○"; position: absolute; left: 0; color: #aeb8c6; font-size: 10px; top: 4px; }
+  .subtasks li.tdone { color: #3a4452; } .subtasks li.tdone::before { content: "✓"; color: var(--good); }
+  .note { font-size: 11px; color: var(--warn); margin-top: 8px; }
+
+  /* per-HCP status table */
+  .hcp-table-wrap { flex: 1 1 auto; min-height: 0; overflow: auto; }
+  table.hcp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.hcp-table th { text-align: left; font-size: 9.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 7px 9px; border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; background: #fff; z-index: 1; }
+  table.hcp-table td { padding: 5px 9px; border-bottom: 1px solid var(--panel-3); white-space: nowrap; }
+  table.hcp-table th:nth-child(n+4), table.hcp-table td:nth-child(n+4) { text-align: center; padding-left: 6px; padding-right: 6px; }
+  /* Freeze the first column (HCP); all other columns scroll under it. */
+  table.hcp-table th:nth-child(1), table.hcp-table td:nth-child(1) { position: sticky; left: 0; background: #fff; z-index: 2; min-width: 170px; max-width: 170px; overflow: hidden; text-overflow: ellipsis; box-shadow: 2px 0 0 var(--border); }
+  table.hcp-table th:nth-child(1) { z-index: 4; } /* header corner cell above everything */
+  table.hcp-table tr:hover td:nth-child(1) { background: var(--panel-2); }
+  table.hcp-table tr.sel td:nth-child(1) { background: #eaf1ff; }
+  table.hcp-table th.stg { font-size: 9px; }
+  table.hcp-table tr:hover td { background: var(--panel-2); }
+  table.hcp-table .hcpname { font-weight: 600; }
+  .ind { display: inline-block; width: 20px; height: 20px; border-radius: 50%; line-height: 19px; text-align: center; font-size: 11px; font-weight: 700; }
+  .ind.done { background: var(--good); color: #fff; box-shadow: 0 1px 3px rgba(31,169,122,.4); }
+  .ind.pend { background: #fff; border: 2px solid #d3dae4; }
+
+  /* ===== Agent workspace ===== */
+  .app { display: flex; flex-direction: column; height: 100%; }
+  header.aw { flex: 0 0 auto; height: 54px; display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--navy); background: linear-gradient(90deg, var(--navy), var(--navy-2)); }
+  header.aw .logo { width: 32px; height: 32px; border-radius: 9px; background: linear-gradient(135deg, #4f8cff, #7c5cff); color: #fff; display: grid; place-items: center; font-weight: 700; }
+  header.aw h1 { font-size: 15px; margin: 0; font-weight: 650; color: #fff; } header.aw .sub { font-size: 11px; color: #b8cae4; }
+  header.aw .spacer { flex: 1; }
+  header.aw .hbtn { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.22); }
+  header.aw .hbtn:hover { border-color: #fff; }
+  .conn-pill { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; padding: 7px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.12); color: #dce8fa; cursor: pointer; }
+  .conn-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bad); } .conn-pill.ok .dot { background: var(--good); } .conn-pill.sim .dot { background: var(--warn); }
+
+  .awbody { flex: 1 1 auto; display: grid; grid-template-columns: 300px 1fr 380px; min-height: 0; }
+  .col { min-height: 0; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .sidebar { border-right: 1px solid var(--border); background: #fff; overflow-y: auto; overflow-x: hidden; }
+  .sidebar::-webkit-scrollbar { width: 8px; } .sidebar::-webkit-scrollbar-thumb { background: #d4dbe6; border-radius: 8px; border: 2px solid #fff; } .sidebar::-webkit-scrollbar-thumb:hover { background: #b9c3d4; }
+  .sidebar .sec { flex: 0 0 auto; }
+  .center { background: var(--bg); } .chat { border-left: 1px solid var(--border); background: #fff; }
+  .sec { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .sidebar .sec h2 { position: sticky; top: 0; z-index: 3; background: #fff; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 6px; padding: 4px 0; }
+  .sec h2 { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 6px; }
+  .qa { display: flex; flex-direction: column; gap: 8px; }
+  .qa { gap: 6px; }
+  .qa button { text-align: left; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); border-radius: 9px; padding: 7px 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .qa button:hover { border-color: var(--accent); background: var(--panel-3); }
+  .qa button .ic { font-size: 14px; } .qa button small { display: block; color: var(--muted); font-size: 9.5px; font-weight: 400; }
+  .qa .qa-div { height: 1px; background: linear-gradient(90deg, transparent, var(--border) 18%, var(--border) 82%, transparent); margin: 9px 2px 5px; }
+  .qa button.qa-mini { padding: 6px 10px; font-size: 11px; }
+  .qa button.qa-mini small { font-size: 8.5px; }
+  /* live agents & tools tree */
+  .tree { display: flex; flex-direction: column; gap: 1px; }
+  .tgroup { margin-bottom: 5px; }
+  .sidebar .sec.grow-sec { flex: 0 0 auto; display: flex; flex-direction: column; }
+  .grow-sec .tree { gap: 2px; }
+  .tgroup { margin-bottom: 2px; }
+  .tnode { display: flex; align-items: center; gap: 8px; padding: 4px 9px; border-radius: 7px; font-size: 11.5px; transition: background .15s, transform .15s; cursor: default; }
+  .tnode:hover { background: var(--panel-2); }
+  .tnode .tname { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tnode.agent { font-weight: 600; color: var(--text); border-left: 3px solid var(--border); cursor: pointer; }
+  .tnode.agent.g0 { border-left-color: #2f6bff; } .tnode.agent.g1 { border-left-color: #7c5cff; } .tnode.agent.g2 { border-left-color: #1fa97a; }
+  .tnode.agent.g3 { border-left-color: #f0a500; } .tnode.agent.g4 { border-left-color: #0891b2; } .tnode.agent.g5 { border-left-color: #e0508a; }
+  .tchev { font-size: 9px; color: var(--muted); flex: 0 0 auto; transition: transform .2s ease; width: 9px; }
+  .tgroup:not(.collapsed) .tchev { transform: rotate(90deg); }
+  .tlbl { display: flex; flex-direction: column; gap: 3px; line-height: 1.3; min-width: 0; }
+  .tnode.agent { padding-top: 6px; padding-bottom: 6px; }
+  .tcluster { font-size: 8.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tgroup.collapsed .tkids { display: none; }
+  .tkids { border-left: 1px solid var(--border); margin-left: 11px; padding-left: 6px; }
+  .tnode.tool { font-size: 10.5px; color: var(--muted); padding: 3px 9px; }
+  .tnode.active { transform: translateX(2px); }
+  .tdot { width: 8px; height: 8px; border-radius: 50%; background: #c4ccd8; flex: 0 0 auto; transition: all .25s; }
+  .tnode.active { background: rgba(240,165,0,.12); }
+  .tnode.active .tdot { background: var(--warn); box-shadow: 0 0 8px var(--warn); animation: pulseAmber 1.4s ease-in-out infinite; }
+  .tnode.active .tname { color: var(--text); }
+  .tnode.done .tdot { background: var(--good); }
+  .tnode.done.tool .tname { color: #3a4452; }
+  .ticon { width: 15px; height: 15px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .ticon svg { display: block; }
+  /* triggers section */
+  .triggers { display: flex; flex-direction: column; gap: 2px; }
+  .trig { display: flex; align-items: center; gap: 7px; padding: 5px 8px; border-radius: 7px; font-size: 11px; color: var(--text); cursor: pointer; border: 1px solid transparent; transition: background .15s, border-color .15s, transform .12s; }
+  .trig:hover { background: var(--panel-2); border-color: var(--border); transform: translateX(2px); }
+  .trig .ti { color: var(--warn); flex: 0 0 auto; font-size: 12px; }
+  .trig .tt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .kpi { background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 6px; text-align: center; }
+  .kpi .v { font-size: 17px; font-weight: 700; color: var(--accent); } .kpi.g .v { color: var(--good); }
+  .kpi .l { font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; line-height: 1.2; margin-top: 2px; }
+
+  .graph-panel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  .panel-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); background: #fff; }
+  .panel-head .title { font-weight: 600; font-size: 13px; } .panel-head .sub { font-size: 11px; color: var(--muted); } .panel-head .spacer { flex: 1; }
+  .legend { display: flex; gap: 12px; font-size: 10.5px; color: var(--muted); } .legend span { display: inline-flex; align-items: center; gap: 5px; } .legend i { width: 8px; height: 8px; border-radius: 50%; }
+  .hdr-kpis { display: flex; gap: 8px; }
+  .hk { background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 4px 12px; text-align: center; min-width: 52px; }
+  .hk .v { font-size: 16px; font-weight: 700; color: var(--accent); line-height: 1.1; } .hk.g .v { color: var(--good); }
+  .hk .l { font-size: 8.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .graph-wrap { flex: 1 1 auto; min-height: 0; position: relative; }
+  svg.graph { width: 100%; height: 100%; display: block; }
+  .zoom { position: absolute; left: 12px; bottom: 12px; display: flex; flex-direction: column; gap: 6px; z-index: 4; }
+  .zoom button { width: 30px; height: 30px; border-radius: 8px; background: #fff; border: 1px solid var(--border); color: var(--text); cursor: pointer; font-size: 15px; } .zoom button:hover { border-color: var(--accent); }
+  .orch-status { position: absolute; left: 50px; bottom: 16px; right: 14px; font-size: 12px; color: #137a57; display: flex; gap: 9px; align-items: center; z-index: 4; pointer-events: none; }
+  .orch-status .lbl { color: var(--muted); text-transform: uppercase; font-size: 10px; letter-spacing: .06em; }
+  .logs-panel { flex: 0 0 168px; border-top: 1px solid var(--border); background: #fff; display: flex; flex-direction: column; min-height: 0; }
+  .logs-list { flex: 1; overflow-y: auto; padding: 6px 12px 10px; font-family: var(--mono); font-size: 11.5px; }
+  .logline { padding: 2px 0; color: #44505f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .logline .t { color: #9aa6b4; } .logline .who { color: #a86700; }
+  .logline.think { color: #6a4fd0; } .logline.tool { color: #a86700; } .logline.resp { color: #137a57; } .logline.err { color: #c0353a; } .logline.sys { color: var(--muted); }
+
+  .tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .tab { flex: 1; padding: 11px 6px; text-align: center; font-size: 12.5px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; position: relative; }
+  .tab:hover { color: var(--text); } .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .tab .ndot { position: absolute; top: 7px; right: 14px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: none; } .tab.has-new .ndot { display: block; }
+  .pane { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 14px; display: none; } .pane.active { display: block; }
+  .chat-input { flex: 0 0 auto; border-top: 1px solid var(--border); padding: 10px; display: flex; gap: 8px; }
+  .chat-input textarea { flex: 1; resize: none; height: 40px; max-height: 110px; background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 9px; padding: 10px; font-family: var(--sans); font-size: 13px; } .chat-input textarea:focus { outline: none; border-color: var(--accent); }
+  .send-btn { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; color: #fff; border-radius: 9px; padding: 0 16px; cursor: pointer; font-weight: 600; font-size: 13px; } .send-btn:disabled { opacity: .5; cursor: not-allowed; }
+  #chatPane { display: none; flex-direction: column; gap: 9px; } #chatPane.active { display: flex; }
+  .msg { max-width: 90%; padding: 9px 12px; border-radius: 11px; font-size: 12px; line-height: 1.55; white-space: pre-wrap; word-wrap: break-word; }
+  .msg.user { align-self: flex-end; background: linear-gradient(135deg, var(--accent), #2a5fe0); color: #fff; border-bottom-right-radius: 4px; }
+  .msg.agent { align-self: flex-start; background: var(--panel-2); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .msg.system { align-self: center; background: transparent; color: var(--muted); font-size: 11.5px; font-style: italic; text-align: center; }
+  .msg.approval { align-self: stretch; max-width: 100%; background: #fff; border: 1.5px solid var(--warn); border-left: 4px solid var(--warn); box-shadow: 0 6px 18px rgba(199,125,0,.14); padding: 12px 14px; white-space: normal; }
+  .msg.approval .appv-h { font-weight: 700; font-size: 12.5px; color: #8a5a00; }
+  .msg.approval .appv-sub { font-size: 10.5px; color: var(--muted); margin: 2px 0 10px; }
+  .msg.approval .appv-field { margin-bottom: 8px; }
+  .msg.approval .appv-field label { display: block; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); margin-bottom: 3px; }
+  .msg.approval .appv-subj, .msg.approval .appv-body { width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 11.5px; font-family: var(--sans); color: var(--text); background: #fbfcfe; }
+  .msg.approval .appv-body { resize: vertical; line-height: 1.5; white-space: pre-wrap; }
+  .msg.approval .appv-subj:focus, .msg.approval .appv-body:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(47,107,255,.12); }
+  .msg.approval .appv-btns { display: flex; gap: 8px; margin-top: 4px; }
+  .msg.approval .appv-btns button { flex: 1; padding: 9px; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: transform .12s, box-shadow .12s, opacity .12s; }
+  .msg.approval .appv-approve { background: var(--good); color: #fff; box-shadow: 0 3px 8px rgba(31,169,122,.3); }
+  .msg.approval .appv-reject { background: #fff; color: #d8392b; border: 1.5px solid #f0c4be; }
+  .msg.approval .appv-btns button:hover:not(:disabled) { transform: translateY(-1px); }
+  .msg.approval .appv-btns button:disabled { opacity: .55; cursor: default; }
+  .msg.approval .appv-status { font-size: 11px; font-weight: 600; margin-top: 9px; }
+  .msg.approval.approved { border-color: var(--good); border-left-color: var(--good); } .msg.approval.approved .appv-h { color: #137a57; } .msg.approval.approved .appv-status { color: #137a57; }
+  .msg.approval.rejected { border-color: #d8392b; border-left-color: #d8392b; } .msg.approval.rejected .appv-status { color: #d8392b; }
+  .msg.brief-card { align-self: stretch; max-width: 100%; background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--accent-2, #7c5cff); box-shadow: 0 6px 18px rgba(124,92,255,.12); padding: 12px 14px; white-space: normal; }
+  .msg.brief-card .bc-h { font-weight: 700; font-size: 12.5px; color: #1e2630; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .msg.brief-card .bc-tag { font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #137a57; background: rgba(31,169,122,.12); padding: 2px 7px; border-radius: 999px; }
+  .msg.brief-card .bc-sec { padding: 6px 0; border-top: 1px solid var(--panel-3); }
+  .msg.brief-card .bc-t { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--accent); margin-bottom: 2px; }
+  .msg.brief-card .bc-b { font-size: 11.5px; line-height: 1.5; color: var(--text); }
+  .trace { width: 100%; border: 1px solid var(--border); border-radius: 10px; background: var(--panel-2); overflow: hidden; margin-bottom: 9px; }
+  .trace summary { cursor: pointer; padding: 8px 11px; font-size: 11.5px; color: var(--text); list-style: none; display: flex; align-items: center; gap: 8px; } .trace summary::-webkit-details-marker { display: none; }
+  .badge { font-size: 9.5px; padding: 2px 7px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; }
+  .badge.prompt { background: rgba(47,107,255,.12); color: #2f6bff; } .badge.tool { background: rgba(199,125,0,.14); color: #a86700; } .badge.think { background: rgba(124,92,255,.13); color: #6a4fd0; } .badge.resp { background: rgba(31,169,122,.14); color: #137a57; } .badge.error { background: rgba(224,72,77,.12); color: #c0353a; }
+  .trace .tbody { padding: 0 11px 11px; }
+  .trace pre { margin: 0; font-family: var(--mono); font-size: 10.5px; color: #2a3340; white-space: pre-wrap; word-break: break-word; background: #f4f6fa; border: 1px solid var(--border); border-radius: 7px; padding: 9px; max-height: 260px; overflow: auto; }
+
+  /* graph */
+  .node.tool, .node.tool circle, .edge { transition: opacity .35s ease, stroke .3s, fill .3s; }
+  .node.hidden, .edge.hidden { opacity: 0; pointer-events: none; }
+  .node.tool.dim { opacity: .3; } .node.tool.dim text { fill: #aab4c2; } .edge.dim { opacity: .12; }
+  .node.tool text { font-size: 14.5px; }
+  .node.agent { cursor: pointer; }
+  .edge { stroke: #ccd4e0; stroke-width: 1; opacity: .6; fill: none; transition: opacity .3s, stroke .3s; }
+  .edge.active { stroke: var(--good); stroke-width: 2.5; opacity: 1; stroke-dasharray: 1 9; stroke-linecap: round; animation: flow .5s linear infinite; }
+  .edge.done { stroke: var(--good); stroke-width: 1.5; opacity: .55; stroke-dasharray: none; animation: none; }
+  @keyframes flow { to { stroke-dashoffset: -100; } }
+  .node circle { fill: #fff; stroke: #c4ccd8; stroke-width: 1.5; transition: fill .3s, stroke .3s, filter .3s; transform-box: fill-box; transform-origin: center; }
+  .node text { fill: #4a5664; font-size: 15.5px; font-weight: 500; font-family: var(--sans); text-anchor: middle; pointer-events: none; transition: fill .3s; paint-order: stroke; stroke: #eef2f7; stroke-width: 4px; stroke-linejoin: round; }
+  .node text.lbl-start { text-anchor: start; } .node text.lbl-mid { text-anchor: middle; } .node text.lbl-end { text-anchor: end; }
+  .node.agent text { fill: #1e2630; font-size: 17.5px; font-weight: 700; }
+  .node.active circle { fill: #e3f7ee; stroke: var(--good); stroke-width: 2.5; filter: drop-shadow(0 0 6px rgba(31,169,122,.6)); } .node.active text { fill: #0f5c41; }
+  .node.done circle { stroke: var(--good); fill: #eef9f3; } .node.done text { fill: #137a57; }
+  .node.pulse circle { animation: nodePulse .6s ease; } @keyframes nodePulse { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
+  .node.agent:not(.active):not(.done) circle { stroke-width: 2; }
+  .node.agent.g0:not(.active):not(.done) circle { stroke: #2f6bff; } .node.agent.g1:not(.active):not(.done) circle { stroke: #7c5cff; } .node.agent.g2:not(.active):not(.done) circle { stroke: #1fa97a; }
+  .node.agent.g3:not(.active):not(.done) circle { stroke: #f0a500; } .node.agent.g4:not(.active):not(.done) circle { stroke: #0891b2; } .node.agent.g5:not(.active):not(.done) circle { stroke: #e0508a; }
+  .orch circle { fill: url(#orchGrad); stroke: var(--accent); stroke-width: 2.5; transition: filter .3s; }
+  .orch.busy circle { animation: breathe 1.6s ease-in-out infinite; } @keyframes breathe { 0%,100% { filter: drop-shadow(0 0 4px rgba(47,107,255,.4)); } 50% { filter: drop-shadow(0 0 14px rgba(124,92,255,.8)); } }
+  .orch text { fill: #fff; font-size: 17px; font-weight: 700; text-anchor: middle; pointer-events: none; } .orch text.sub { font-size: 12px; font-weight: 400; fill: #e8efff; }
+
+  /* modal */
+  .overlay { position: fixed; inset: 0; background: rgba(20,30,50,.45); backdrop-filter: blur(2px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .overlay.show { display: flex; }
+  .dialog { width: 100%; max-width: 460px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 24px 60px rgba(20,30,50,.25); }
+  .dialog-head { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; } .dialog-head h3 { margin: 0; font-size: 15px; } .dialog-head .x { margin-left: auto; cursor: pointer; color: var(--muted); font-size: 20px; }
+  .dialog-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 13px; max-height: 70vh; overflow: auto; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .field input, .field textarea { width: 100%; background: #fff; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px 11px; font-size: 13px; font-family: var(--sans); } .field input:focus, .field textarea:focus { outline: none; border-color: var(--accent); }
+  .field textarea.token { height: 80px; font-family: var(--mono); font-size: 11px; resize: vertical; }
+  .preview { font-family: var(--mono); font-size: 12px; color: #2f6bff; background: #f4f6fa; border: 1px dashed var(--border); border-radius: 8px; padding: 10px; line-height: 1.5; word-break: break-word; }
+  .dialog-foot { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+  .btn { border-radius: 8px; padding: 9px 15px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); } .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; color: #fff; } .btn:hover { border-color: var(--accent); }
+  .hint { font-size: 11px; color: var(--muted); line-height: 1.5; } .hint code { background: #f4f6fa; padding: 1px 5px; border-radius: 4px; font-family: var(--mono); color: #a86700; }
+  .divider { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 11px; } .divider > div { flex: 1; height: 1px; background: var(--border); }
+
+  /* ===== Tab 2 (Agent Workspace) — light, mostly-white with a soft slate canvas ===== */
+  #viewAgent { color: var(--text); }
+  #viewAgent { --bg: #eef2f7; }                 /* graph canvas: very light slate */
+  #viewAgent .sidebar, #viewAgent .chat, #viewAgent .panel-head, #viewAgent .logs-panel { background: #fff; }
+  #viewAgent .msg.agent, #viewAgent .trace, #viewAgent .chat-input textarea { background: #f4f7fb; }
+  #viewAgent .msg.agent { color: var(--text); }
+  #viewAgent .trace pre { background: #f4f6fa; color: #2a3340; }
+  /* clean light cards with a brand-gradient icon accent (matches the theme) */
+  #viewAgent .qa button { background: #fff; color: var(--text); border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(20,30,50,.05); position: relative; overflow: hidden; }
+  #viewAgent .qa button::after { content: "→"; margin-left: auto; color: var(--accent); font-weight: 700; opacity: 0; transform: translateX(-5px); transition: opacity .2s ease, transform .2s ease; }
+  #viewAgent .qa button:hover { border-color: var(--accent); box-shadow: 0 8px 20px rgba(47,107,255,.20); transform: translateY(-2px); }
+  #viewAgent .qa button:hover::after { opacity: 1; transform: translateX(0); }
+  #viewAgent .qa button:hover .ic { animation: iconPop .5s ease; }
+  #viewAgent .qa button .ic { animation: floatY 3.2s ease-in-out infinite; }
+  @keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+  @keyframes iconPop { 0% { transform: scale(1) rotate(0); } 40% { transform: scale(1.18) rotate(-6deg); } 100% { transform: scale(1) rotate(0); } }
+  #viewAgent .qa button small { color: var(--muted); }
+  #viewAgent .qa button .ic { width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, #4f8cff, #7c5cff); color: #fff; display: grid; place-items: center; font-size: 13px; box-shadow: 0 2px 6px rgba(79,140,255,.4); flex: 0 0 auto; }
+  #viewAgent .qa button.qa-mini .ic { width: 22px; height: 22px; font-size: 11px; background: #eef2f7; }
+  #viewAgent .qa button.qa-mini { border-left-width: 3px; }
+  #viewAgent .qa button.qa-mini[data-agent="in_call_support_agent"], #viewAgent .qa button.qa-mini[data-agent="strategy_feedback_agent"], #viewAgent .qa button.qa-mini[data-agent="relationship_health_agent"] { border-left-color: #f0a500; }
+  #viewAgent .qa button.qa-mini[data-agent="in_call_support_agent"] .ic, #viewAgent .qa button.qa-mini[data-agent="strategy_feedback_agent"] .ic, #viewAgent .qa button.qa-mini[data-agent="relationship_health_agent"] .ic { background: linear-gradient(135deg, #f6c350, #f0a500); }
+  #viewAgent .qa button.qa-mini[data-agent="post_call_report_agent"], #viewAgent .qa button.qa-mini[data-agent="advisory_board_agent"] { border-left-color: #0891b2; }
+  #viewAgent .qa button.qa-mini[data-agent="post_call_report_agent"] .ic, #viewAgent .qa button.qa-mini[data-agent="advisory_board_agent"] .ic { background: linear-gradient(135deg, #2bb6c7, #0891b2); }
+  #viewAgent .qa button.qa-mini[data-agent="insight_synthesis_agent"], #viewAgent .qa button.qa-mini[data-agent="iis_rwe_agent"] { border-left-color: #e0508a; }
+  #viewAgent .qa button.qa-mini[data-agent="insight_synthesis_agent"] .ic, #viewAgent .qa button.qa-mini[data-agent="iis_rwe_agent"] .ic { background: linear-gradient(135deg, #ee79a8, #e0508a); }
+  #viewAgent .ritem { background: #fff; color: var(--text); border: 1px solid var(--border); }
+  #viewAgent .ritem .rname { color: var(--text); } #viewAgent .ritem .rrole { color: var(--muted); }
+  #viewAgent .ritem.active { border-color: var(--good); background: rgba(31,169,122,.08); }
+  #viewAgent .kpi { background: #fff; border: 1px solid var(--border); }
+  #viewAgent .kpi .v { color: var(--accent); } #viewAgent .kpi.g .v { color: var(--good); } #viewAgent .kpi .l { color: var(--muted); }
+
+  /* ===== Marketing Manager (Campaign Brief) view ===== */
+  .mm-bar { position: fixed; top: 0; left: 0; right: 0; height: 38px; z-index: 8001; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: linear-gradient(100deg, #0a1f44 0%, #143a7a 55%, #1e5bd6 100%); color: #fff; box-shadow: 0 2px 8px rgba(10,31,68,.25); }
+  .mm-bar.gone, .mm-frame.gone { display: none !important; }
+  .mm-bar .mmb-brand { font-size: 13px; font-weight: 700; letter-spacing: .2px; }
+  .mm-bar button { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); color: #fff; border-radius: 7px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--sans); transition: background .15s; }
+  .mm-bar button:hover { background: rgba(255,255,255,.28); }
+  .mm-frame { position: fixed; top: 38px; left: 0; right: 0; bottom: 0; width: 100%; border: 0; z-index: 8000; background: #fff; }
+
+  /* ===== Splash screen ===== */
+  #splash { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #08203f 0%, #16386e 42%, #2f6bff 78%, #7c5cff 100%); background-size: 220% 220%;
+    animation: splashGrad 3s ease infinite, splashOut .5s ease 2.6s forwards; overflow: hidden; }
+  #splash.gone { display: none !important; }
+  #splash::before, #splash::after { content: ""; position: absolute; border-radius: 50%; border: 2px dashed rgba(255,255,255,.16); }
+  #splash::before { width: 420px; height: 420px; animation: ringSpin 14s linear infinite; }
+  #splash::after { width: 660px; height: 660px; border-style: dotted; animation: ringSpin 26s linear infinite reverse; }
+  .splash-content { position: relative; z-index: 1; text-align: center; color: #fff; padding: 20px; }
+  .splash-logo { display: inline-flex; align-items: center; justify-content: center; width: 92px; height: 92px; border-radius: 22px;
+    background: #fff; padding: 19px; box-sizing: border-box; margin-bottom: 24px;
+    box-shadow: 0 16px 40px rgba(0,0,0,.3); animation: logoIn .9s cubic-bezier(.34,1.56,.64,1) both, logoPulse 2.4s ease-in-out 1s infinite; }
+  .splash-logo svg { width: 100%; height: 100%; display: block; }
+  .splash-welcome { margin: 0 0 6px; font-size: 13px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; opacity: .9; animation: slideUp .55s ease .25s both; }
+  .splash-title { margin: 0; font-size: 40px; font-weight: 800; letter-spacing: -.5px; text-shadow: 0 2px 12px rgba(0,0,0,.25); animation: slideUp .65s ease .45s both; }
+  .splash-sub { margin: 8px 0 28px; font-size: 16px; opacity: .92; animation: slideUp .65s ease .65s both; }
+  .splash-prog { width: 280px; height: 4px; background: rgba(255,255,255,.25); border-radius: 99px; margin: 0 auto; overflow: hidden; animation: slideUp .5s ease .85s both; }
+  .splash-prog > span { display: block; height: 100%; width: 0; border-radius: 99px; background: #fff; box-shadow: 0 0 14px rgba(255,255,255,.7); animation: progFill 2.3s cubic-bezier(.4,0,.2,1) .3s forwards; }
+  .splash-dots { margin-top: 22px; display: flex; gap: 10px; justify-content: center; animation: slideUp .5s ease 1.05s both; }
+  .splash-dots > span { width: 9px; height: 9px; border-radius: 50%; animation: dotPulse 1.2s ease-in-out infinite; }
+  .splash-dots > span:nth-child(1) { background: #4f8cff; animation-delay: 0s; }
+  .splash-dots > span:nth-child(2) { background: #1fa97a; animation-delay: .15s; }
+  .splash-dots > span:nth-child(3) { background: #f0a500; animation-delay: .30s; }
+  .splash-dots > span:nth-child(4) { background: #7c5cff; animation-delay: .45s; }
+  @keyframes splashGrad { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+  @keyframes splashOut { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+  @keyframes ringSpin { to { transform: rotate(360deg); } }
+  @keyframes logoIn { from { transform: scale(0) rotate(-160deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
+  @keyframes logoPulse { 0%,100% { box-shadow: 0 16px 40px rgba(0,0,0,.3), 0 0 0 0 rgba(255,255,255,.4); } 50% { box-shadow: 0 16px 40px rgba(0,0,0,.3), 0 0 0 16px rgba(255,255,255,0); } }
+  @keyframes slideUp { from { transform: translateY(22px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes progFill { to { width: 100%; } }
+  @keyframes dotPulse { 0%,100% { transform: scale(1); opacity: .45; } 50% { transform: scale(1.5); opacity: 1; } }
+
+  /* ===== Gateway screens: role selection + login ===== */
+  .gateway { position: fixed; inset: 0; z-index: 9000; display: flex; flex-direction: column; background: #eef2f7; overflow: auto; animation: gwFade .35s ease both; }
+  .gateway.gone { display: none !important; }
+  @keyframes gwFade { from { opacity: 0; } to { opacity: 1; } }
+  .gw-header { background: linear-gradient(100deg, #0a1f44 0%, #143a7a 55%, #1e5bd6 100%); color: #fff; padding: 15px 42px; display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 18px rgba(10,31,68,.25); }
+  .gw-header .gw-logo { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 12px; background: #fff; padding: 7px; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,.18); }
+  .gw-header .gw-logo svg { width: 100%; height: 100%; display: block; }
+  .gw-header .gw-title { font-size: 21px; font-weight: 800; letter-spacing: .2px; }
+  .gw-header .gw-by { margin-left: auto; font-size: 12.5px; opacity: .9; }
+  .gw-header .gw-by b { font-weight: 700; }
+  .gw-body { flex: 1; display: grid; place-items: center; padding: 20px; min-height: 0; }
+  .gw-card { background: #fff; border: 1px solid #e3e9f2; border-radius: 18px; box-shadow: 0 18px 50px rgba(20,40,80,.10); padding: 26px 34px; width: 100%; max-width: 560px; animation: slideUp .4s ease both; }
+  .gw-card.gw-login { max-width: 460px; animation: none; }
+  .gw-card h2 { margin: 0 0 2px; font-size: 22px; font-weight: 800; color: #0a1f44; text-align: center; }
+  .gw-card .gw-sub { margin: 0 0 18px; text-align: center; color: #64748b; font-size: 14px; }
+  .role-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .role-card { position: relative; display: flex; flex-direction: column; align-items: flex-start; aspect-ratio: 1 / 1; padding: 20px; border: 1.5px solid #e3e9f2; border-radius: 16px; cursor: pointer; transition: border-color .18s, box-shadow .18s, transform .18s, background .18s; background: #fbfcfe; }
+  .role-card:hover { border-color: #2f6bff; box-shadow: 0 12px 28px rgba(47,107,255,.18); transform: translateY(-3px); background: #f5f9ff; }
+  .role-card .rc-ic { width: 50px; height: 50px; border-radius: 14px; display: grid; place-items: center; font-size: 24px; color: #fff; flex: 0 0 auto; box-shadow: 0 5px 14px rgba(20,40,80,.20); }
+  .role-card .rc-tx { margin-top: auto; }
+  .role-card .rc-tx b { display: block; font-size: 16px; font-weight: 700; color: #0a1f44; margin-bottom: 5px; }
+  .role-card .rc-tx span { font-size: 13px; color: #64748b; line-height: 1.45; }
+  .role-card .rc-arrow { position: absolute; top: 20px; right: 20px; color: #94a3b8; font-size: 20px; transition: transform .18s, color .18s; }
+  .role-card:hover .rc-arrow { transform: translateX(4px); color: #2f6bff; }
+
+  /* ===== Division → Role picker (single screen) ===== */
+  .gw-card.gw-roles { max-width: 960px; padding: 24px 30px 28px; }
+  .rolepick { display: grid; grid-template-columns: 270px 1fr; gap: 22px; align-items: start; }
+  .dp-h { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #94a3b8; margin: 0 0 10px; display: flex; align-items: baseline; gap: 8px; }
+  .dp-h .dp-step { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; background: #2f6bff; color: #fff; font-size: 10px; font-weight: 700; }
+  .dp-divname { color: #2f6bff; text-transform: none; letter-spacing: 0; font-size: 12px; }
+  .div-list { display: flex; flex-direction: column; gap: 8px; }
+  .div-item { display: flex; align-items: center; gap: 11px; padding: 11px 12px; border: 1.5px solid #e3e9f2; border-radius: 12px; cursor: pointer; background: #fbfcfe; transition: border-color .16s, background .16s, box-shadow .16s; }
+  .div-item:hover { border-color: #b8ccff; background: #f5f9ff; }
+  .div-item.active { border-color: #2f6bff; background: #eef4ff; box-shadow: 0 6px 16px rgba(47,107,255,.16); }
+  .div-item .di-ic { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; font-size: 16px; color: #fff; flex: 0 0 auto; box-shadow: 0 3px 9px rgba(20,40,80,.18); }
+  .div-item .di-tx b { display: block; font-size: 13.5px; font-weight: 700; color: #0a1f44; line-height: 1.2; }
+  .div-item .di-tx span { font-size: 11px; color: #94a3b8; }
+  .div-item .di-chk { margin-left: auto; color: #2f6bff; font-size: 15px; opacity: 0; transition: opacity .16s; }
+  .div-item.active .di-chk { opacity: 1; }
+  .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+  .role-pill { position: relative; display: flex; flex-direction: column; gap: 3px; padding: 13px 15px; border: 1.5px solid #e3e9f2; border-radius: 12px; cursor: pointer; background: #fbfcfe; transition: border-color .16s, box-shadow .16s, transform .16s, background .16s; animation: slideUp .28s ease both; }
+  .role-pill:hover { border-color: #2f6bff; box-shadow: 0 10px 22px rgba(47,107,255,.16); transform: translateY(-2px); background: #f5f9ff; }
+  .role-pill.active { border-color: #2f6bff; background: #eef4ff; box-shadow: 0 8px 20px rgba(47,107,255,.20); }
+  .role-pill b { font-size: 13.5px; font-weight: 700; color: #0a1f44; padding-right: 18px; }
+  .role-pill span { font-size: 11.5px; color: #64748b; line-height: 1.4; }
+  .role-pill .rp-arrow { position: absolute; top: 12px; right: 13px; color: #94a3b8; font-size: 16px; transition: transform .16s, color .16s; }
+  .role-pill:hover .rp-arrow { transform: translateX(3px); color: #2f6bff; }
+  @media (max-width: 720px) { .rolepick { grid-template-columns: 1fr; } .role-grid { grid-template-columns: 1fr; } }
+
+  .gw-back { background: none; border: none; color: #64748b; font-size: 13px; cursor: pointer; margin-bottom: 14px; padding: 0; }
+  .gw-back:hover { color: #2f6bff; }
+  .gw-rolechip { display: flex; width: fit-content; align-items: center; gap: 8px; background: #eef4ff; border: 1px solid #cfe0ff; color: #1e3a8a; font-weight: 600; font-size: 13px; padding: 7px 14px; border-radius: 99px; margin: 0 auto 24px; }
+  .gw-rolechip .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .gw-field { margin-bottom: 15px; }
+  .gw-field label { display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+  .gw-input { position: relative; }
+  .gw-input .gw-ic { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 15px; opacity: .55; pointer-events: none; transition: opacity .15s, transform .15s; }
+  .gw-input input { width: 100%; padding: 13px 14px 13px 42px; border: 1.5px solid #d8e0ec; border-radius: 11px; font-size: 14px; font-family: inherit; box-sizing: border-box; background: #fbfcfe; transition: border-color .15s, box-shadow .15s, background .15s; }
+  .gw-input input:focus { outline: none; border-color: #2f6bff; background: #fff; box-shadow: 0 0 0 4px rgba(47,107,255,.15); }
+  .gw-input input:focus + .gw-ic, .gw-input:focus-within .gw-ic { opacity: 1; transform: translateY(-50%) scale(1.12); }
+  .gw-btn { position: relative; overflow: hidden; width: 100%; padding: 14px; border: none; border-radius: 11px; background: linear-gradient(100deg, #1e5bd6, #2f6bff); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 10px 24px rgba(47,107,255,.32); transition: transform .15s, box-shadow .15s; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .gw-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(47,107,255,.44); }
+  .gw-btn:active { transform: translateY(0); }
+  .gw-btn .gw-btn-arrow { transition: transform .2s ease; }
+  .gw-btn:hover .gw-btn-arrow { transform: translateX(5px); }
+  .gw-btn::after { content: ""; position: absolute; top: 0; left: -60%; width: 35%; height: 100%; background: linear-gradient(120deg, transparent, rgba(255,255,255,.5), transparent); transform: skewX(-20deg); animation: btnSheen 3.4s ease-in-out infinite; }
+  @keyframes btnSheen { 0% { left: -60%; } 55%, 100% { left: 135%; } }
+  .gw-err { color: #d8392b; font-size: 13px; text-align: center; margin: 12px 0 0; min-height: 16px; font-weight: 600; }
+
+  /* Login: floating aurora + staggered entrance + shake */
+  #loginScreen .gw-body { position: relative; overflow: hidden; }
+  #loginScreen .gw-body::before, #loginScreen .gw-body::after { content: ""; position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55; z-index: 0; animation: blobFloat 13s ease-in-out infinite; }
+  #loginScreen .gw-body::before { width: 380px; height: 380px; background: radial-gradient(circle, #9dc2ff, transparent 70%); top: -90px; left: -70px; }
+  #loginScreen .gw-body::after { width: 440px; height: 440px; background: radial-gradient(circle, #c8b8fd, transparent 70%); bottom: -130px; right: -90px; animation-delay: -6.5s; }
+  #loginScreen .gw-card { position: relative; z-index: 1; }
+  @keyframes blobFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(34px, -22px) scale(1.1); } }
+  @keyframes fieldIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  .gw-login > * { animation: fieldIn .5s cubic-bezier(.2,.7,.3,1) both; }
+  .gw-login > *:nth-child(1) { animation-delay: .05s; }
+  .gw-login > *:nth-child(2) { animation-delay: .11s; }
+  .gw-login > *:nth-child(3) { animation-delay: .17s; }
+  .gw-login > *:nth-child(4) { animation-delay: .23s; }
+  .gw-login > *:nth-child(5) { animation-delay: .29s; }
+  .gw-login > *:nth-child(6) { animation-delay: .35s; }
+  .gw-login > *:nth-child(7) { animation-delay: .41s; }
+  .gw-login > *:nth-child(8) { animation-delay: .45s; }
+  .gw-login > *:nth-child(9) { animation-delay: .50s; }
+  .gw-rolechip .dot { animation: chipDot 1.5s ease-in-out infinite; }
+  @keyframes chipDot { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.6); opacity: .5; } }
+  .gw-card.shake { animation: shakeX .42s cubic-bezier(.36,.07,.19,.97) both; }
+  @keyframes shakeX { 10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(4px); } 30%, 50%, 70% { transform: translateX(-7px); } 40%, 60% { transform: translateX(7px); } }
+
+  /* ===== Screen entrance / hover animations ===== */
+  .apptabs { background-size: 220% 220%; animation: hdrGrad 18s ease infinite; }
+  @keyframes hdrGrad { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+  .appview.active { animation: viewIn .42s ease both; }
+  @keyframes viewIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes riseIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .focus-banner { animation: riseIn .45s ease both; }
+  .stat { animation: riseIn .5s ease both; transition: transform .18s ease, box-shadow .18s ease; }
+  .stat:nth-child(2) { animation-delay: .06s; } .stat:nth-child(3) { animation-delay: .12s; } .stat:nth-child(4) { animation-delay: .18s; }
+  .stat:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(20,30,50,.1); }
+  .dash .panel { animation: riseIn .5s ease both; }
+  .step { animation: stepIn .4s ease both; }
+  .step:nth-child(2) { animation-delay: .07s; } .step:nth-child(3) { animation-delay: .14s; } .step:nth-child(4) { animation-delay: .21s; }
+  @keyframes stepIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+  table.hcp-table tbody tr { animation: rowIn .35s ease both; }
+  @keyframes rowIn { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+  .qa button { transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease; }
+  .qa button:hover { transform: translateY(-2px); }
+  .ritem { transition: transform .15s ease, border-color .25s ease; } .ritem:hover { transform: translateX(2px); }
+  .msg, #viewAgent .trace { animation: msgIn .3s ease both; }
+  @keyframes msgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* ===== Highlights for buttons & cards ===== */
+  body { letter-spacing: -.1px; }
+  .dash-head h2, header h1, .apptabs .brand { letter-spacing: -.3px; }
+  /* stat tiles: gradient accent strip on top */
+  .stat { position: relative; overflow: hidden; }
+  .stat::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+  .stat.g::before { background: linear-gradient(90deg, var(--good), #3fd6a0); }
+  /* dashboard section titles: accent bar */
+  .dash .panel h3 { border-left: 3px solid var(--accent); padding-left: 9px; }
+  /* KPI tiles: accent strip */
+  #viewAgent .kpi { position: relative; overflow: hidden; }
+  #viewAgent .kpi::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+  #viewAgent .kpi.g::before { background: linear-gradient(90deg, var(--good), #3fd6a0); }
+  /* quick-action buttons: brand accent edge + hover highlight */
+  #viewAgent .qa button { border-left: 3px solid var(--accent); }
+  #viewAgent .qa button:hover { background: #f4f8ff; }
+  /* roster: left accent colored to match each agent's graph cluster + hover highlight */
+  #viewAgent .ritem { border-left: 3px solid var(--border); }
+  #viewAgent .ritem[data-agent="identification_agent"] { border-left-color: #2f6bff; }
+  #viewAgent .ritem[data-agent="onboarding_agent"] { border-left-color: #1fa97a; }
+  #viewAgent .ritem[data-agent="kol_brief_agent"] { border-left-color: #7c5cff; }
+  #viewAgent .ritem:hover { background: #f7faff; }
+
+  /* ===== Per-HCP selection + journey states ===== */
+  table.hcp-table tbody tr { cursor: pointer; }
+  table.hcp-table tr.sel td { background: #eaf1ff; }
+  table.hcp-table tr.sel td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+  .ind.amber { background: var(--warn); border: none; animation: indPulseA 1.05s ease-in-out infinite; }
+  .ind.blue { background: var(--accent); border: none; animation: indPulseB 1.05s ease-in-out infinite; }
+  @keyframes indPulseA { 0% { box-shadow: 0 0 0 0 rgba(199,125,0,.8), 0 0 6px rgba(199,125,0,.6); transform: scale(1); } 55% { box-shadow: 0 0 0 11px rgba(199,125,0,0), 0 0 12px rgba(199,125,0,.7); transform: scale(1.25); } 100% { box-shadow: 0 0 0 0 rgba(199,125,0,0), 0 0 6px rgba(199,125,0,.6); transform: scale(1); } }
+  @keyframes indPulseB { 0% { box-shadow: 0 0 0 0 rgba(47,107,255,.8), 0 0 6px rgba(47,107,255,.6); transform: scale(1); } 55% { box-shadow: 0 0 0 11px rgba(47,107,255,0), 0 0 12px rgba(47,107,255,.7); transform: scale(1.25); } 100% { box-shadow: 0 0 0 0 rgba(47,107,255,0), 0 0 6px rgba(47,107,255,.6); transform: scale(1); } }
+  @keyframes pulseAmber { 0%,100% { box-shadow: 0 0 0 0 rgba(199,125,0,.55); } 50% { box-shadow: 0 0 0 6px rgba(199,125,0,0); } }
+  @keyframes pulseBlue { 0%,100% { box-shadow: 0 0 0 0 rgba(47,107,255,.5); } 50% { box-shadow: 0 0 0 6px rgba(47,107,255,0); } }
+  .step.approval .dot { border-color: var(--warn); color: var(--warn); box-shadow: 0 0 7px rgba(199,125,0,.45); }
+  .step.awaiting .dot { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 7px rgba(47,107,255,.4); }
+  .stag.approval { background: rgba(199,125,0,.16); color: #a86700; }
+  .stag.awaiting { background: rgba(47,107,255,.14); color: #2f6bff; }
+  .hcp-alert { display: flex; gap: 9px; align-items: flex-start; background: rgba(199,125,0,.1); border: 1px solid rgba(199,125,0,.3); color: #8a5a00; border-radius: 9px; padding: 9px 12px; font-size: 12px; line-height: 1.55; margin-bottom: 12px; }
+  .hcp-alert.none { background: rgba(31,169,122,.1); border-color: rgba(31,169,122,.3); color: #137a57; }
+  .hcp-alert b { font-weight: 700; }
+  /* expandable per-stage details in the HCP journey */
+  .subwrap { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
+  .subwrap.open { max-height: 1500px; }
+  /* filters */
+  .filters { display: flex; gap: 8px; margin: 0 0 10px; flex-wrap: wrap; animation: riseIn .4s ease both; }
+  .filters input, .filters select { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 12px; font-family: var(--sans); color: var(--text); }
+  .filters input { flex: 1; min-width: 130px; } .filters input:focus, .filters select:focus { outline: none; border-color: var(--accent); }
+  /* outreach email card */
+  .email-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 11px 12px; margin: 8px 0 2px; animation: riseIn .35s ease both; }
+  .email-card .eh { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 7px; display: flex; gap: 8px; align-items: center; }
+  .email-card .estat { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: rgba(47,107,255,.14); color: #2f6bff; }
+  .email-card .ebody { white-space: pre-wrap; line-height: 1.55; color: #2a3340; font-size: 12px; }
+  /* pre-call brief document */
+  .brief-doc { margin: 8px 0 2px; animation: riseIn .35s ease both; }
+  .brief-sec { margin: 0 0 9px; padding-left: 10px; border-left: 2px solid var(--border); }
+  .brief-sec .bt { font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .brief-sec .bb { font-size: 11.5px; color: #3a4452; line-height: 1.5; }
+  /* HITL action bar */
+  .jactions { margin: 10px 0 4px; }
+  .jcomment { width: 100%; min-height: 34px; resize: vertical; border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px; font-size: 11.5px; font-family: var(--sans); background: #fff; color: var(--text); }
+  .jcomment:focus { outline: none; border-color: var(--accent); }
+  .jbtns { display: flex; gap: 7px; margin-top: 7px; flex-wrap: wrap; }
+  .jbtn { border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 11.5px; font-weight: 600; cursor: pointer; background: #fff; color: var(--text); transition: transform .12s ease, border-color .15s ease; }
+  .jbtn:hover { transform: translateY(-1px); border-color: var(--accent); }
+  .jbtn.approve { background: var(--good); color: #fff; border: none; }
+  .jbtn.reject { background: #fff; color: var(--bad); border-color: rgba(224,72,77,.4); }
+  .jbtn.trigger { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border: none; }
+  .jnotes { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .jnote { font-size: 11px; color: #3a4452; background: var(--panel-2); border-radius: 7px; padding: 5px 8px; }
+  .jnote .nt { color: var(--muted); font-family: var(--mono); font-size: 10px; margin-right: 6px; }
+  #toast { position: fixed; bottom: 64px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--navy); color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.3); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; z-index: 100000; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  /* left-panel tabs + action queue */
+  .ltabs { display: flex; gap: 6px; margin-bottom: 10px; flex: 0 0 auto; }
+  .ltab { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--muted); cursor: pointer; border: 1px solid transparent; display: inline-flex; align-items: center; gap: 5px; }
+  .ltab:hover { color: var(--text); }
+  .ltab.active { color: var(--accent); background: var(--panel-2); border-color: var(--border); }
+  .ltbadge { display: inline-block; min-width: 16px; height: 16px; line-height: 16px; text-align: center; border-radius: 8px; background: var(--warn); color: #fff; font-size: 10px; padding: 0 4px; }
+  .ltbadge.zero { background: #c4ccd8; }
+  .lt-pane { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  #ltQueue { overflow-y: auto; }
+  .aq-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; background: #fff; animation: riseIn .35s ease both; }
+  .aq-item.approval { border-left: 3px solid var(--warn); } .aq-item.awaiting { border-left: 3px solid var(--accent); }
+  .aq-main { flex: 1; min-width: 0; } .aq-hcp { font-weight: 600; font-size: 13px; } .aq-stage { font-weight: 400; color: var(--muted); font-size: 11px; margin-left: 6px; }
+  .aq-detail { font-size: 11.5px; color: #6b7888; margin-top: 2px; }
+  .aq-btns { display: flex; gap: 6px; flex: 0 0 auto; }
+  .aq-empty { color: var(--good); font-size: 13px; padding: 18px; text-align: center; font-weight: 500; }
+  /* extra animations */
+  .hcp-alert { animation: riseIn .4s ease both; }
+  .ind { transition: transform .2s ease; } table.hcp-table tr:hover .ind { transform: scale(1.12); }
+  .stat .v { transition: color .3s; }
+  .jfacts { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 9px 0 8px; font-size: 11.5px; padding: 9px 11px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; }
+  .jfacts .k { color: var(--muted); white-space: nowrap; } .jfacts .v { color: var(--text); font-weight: 500; }
+  .jtasks { list-style: none; margin: 2px 0 4px; padding: 0; }
+  .jtasks .jt-h { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 6px 0 2px; }
+  .jtasks li { font-size: 11px; color: var(--muted); padding: 3px 0 3px 16px; position: relative; line-height: 1.4; }
+  .jtasks li::before { content: "○"; position: absolute; left: 0; font-size: 9px; top: 4px; color: #aeb8c6; }
+  .jtasks li.done { color: #3a4452; } .jtasks li.done::before { content: "✓"; color: var(--good); }
+</style>
+</head>
+<body>
+<!-- ===== Screen 1: Role selection ===== -->
+<div class="gateway" id="roleScreen">
+  <div class="gw-header">
+    <span class="gw-logo"><svg viewBox="0 0 52.1 44" xmlns="http://www.w3.org/2000/svg" aria-label="Cognizant"><defs><linearGradient id="cogA1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3d54ce"/><stop offset="100%" stop-color="#35cacf"/></linearGradient><linearGradient id="cogA2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#13457d"/><stop offset="100%" stop-color="#279698"/></linearGradient><linearGradient id="cogA3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#090086"/><stop offset="100%" stop-color="#2f96a9"/></linearGradient><linearGradient id="cogA4" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b62ca"/><stop offset="100%" stop-color="#93dfe3"/></linearGradient></defs><path d="M0 22 L15.3 44 L31.1 34.5 L22.2 22 Z" fill="url(#cogA1)"/><path d="M15.3 44 L37.1 44 L52.1 22 Z" fill="url(#cogA2)"/><path d="M15.3 0 L0 22 L22.2 22 L31.1 9.5 Z" fill="url(#cogA3)"/><path d="M15.3 0 L52.1 22 L37.1 0 Z" fill="url(#cogA4)"/></svg></span>
+    <span class="gw-title">Cognizant — Agentic Workspace</span>
+    <span class="gw-by"><b>Autonomous multi-agent</b> orchestration on Google Cloud</span>
+  </div>
+  <div class="gw-body">
+    <div class="gw-card gw-roles">
+      <h2>Select Your Role</h2>
+      <p class="gw-sub">Choose your division, then the role within it to continue</p>
+      <div class="rolepick">
+        <div class="div-col">
+          <div class="dp-h"><span class="dp-step">1</span> Division</div>
+          <div class="div-list" id="divList"></div>
+        </div>
+        <div class="role-col">
+          <div class="dp-h"><span class="dp-step">2</span> Role <span class="dp-divname" id="divName"></span></div>
+          <div class="role-grid" id="roleList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Screen 2: Login ===== -->
+<div class="gateway gone" id="loginScreen">
+  <div class="gw-header">
+    <span class="gw-logo"><svg viewBox="0 0 52.1 44" xmlns="http://www.w3.org/2000/svg" aria-label="Cognizant"><defs><linearGradient id="cogB1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3d54ce"/><stop offset="100%" stop-color="#35cacf"/></linearGradient><linearGradient id="cogB2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#13457d"/><stop offset="100%" stop-color="#279698"/></linearGradient><linearGradient id="cogB3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#090086"/><stop offset="100%" stop-color="#2f96a9"/></linearGradient><linearGradient id="cogB4" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b62ca"/><stop offset="100%" stop-color="#93dfe3"/></linearGradient></defs><path d="M0 22 L15.3 44 L31.1 34.5 L22.2 22 Z" fill="url(#cogB1)"/><path d="M15.3 44 L37.1 44 L52.1 22 Z" fill="url(#cogB2)"/><path d="M15.3 0 L0 22 L22.2 22 L31.1 9.5 Z" fill="url(#cogB3)"/><path d="M15.3 0 L52.1 22 L37.1 0 Z" fill="url(#cogB4)"/></svg></span>
+    <span class="gw-title">Cognizant — Agentic Workspace</span>
+    <span class="gw-by"><b>Autonomous multi-agent</b> orchestration on Google Cloud</span>
+  </div>
+  <div class="gw-body">
+    <div class="gw-card gw-login">
+      <button class="gw-back" id="loginBack">← Change role</button>
+      <div class="gw-rolechip" id="loginRoleChip"><span class="dot"></span><span></span></div>
+      <h2>Sign in</h2>
+      <p class="gw-sub">Enter your credentials and authenticator code</p>
+      <div class="gw-field"><label>Username</label><div class="gw-input"><span class="gw-ic">👤</span><input id="lgUser" autocomplete="off" placeholder="Enter username" /></div></div>
+      <div class="gw-field"><label>Password</label><div class="gw-input"><span class="gw-ic">🔒</span><input id="lgPass" type="password" autocomplete="off" placeholder="Enter password" /></div></div>
+      <div class="gw-field"><label>Authenticator code</label><div class="gw-input"><span class="gw-ic">🔑</span><input id="lgCode" inputmode="numeric" autocomplete="off" placeholder="Enter code" /></div></div>
+      <div class="gw-err" id="lgErr"></div>
+      <button class="gw-btn" id="loginBtn"><span>Sign in</span> <span class="gw-btn-arrow">→</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Marketing Manager view: Campaign Brief Approval dashboard (isolated iframe) ===== -->
+<div id="mmBar" class="mm-bar gone"><span class="mmb-brand">◆ Cognizant · Marketing Manager</span><button id="mmLogout" title="Log out">⎋ Log out</button></div>
+<iframe id="mmFrame" class="mm-frame gone" title="Campaign Brief Approval Dashboard"></iframe>
+
+<div id="splash" class="gone" aria-hidden="true">
+  <div class="splash-content">
+    <div class="splash-logo"><svg viewBox="0 0 52.1 44" xmlns="http://www.w3.org/2000/svg" aria-label="Cognizant"><defs><linearGradient id="cogS1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3d54ce"/><stop offset="100%" stop-color="#35cacf"/></linearGradient><linearGradient id="cogS2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#13457d"/><stop offset="100%" stop-color="#279698"/></linearGradient><linearGradient id="cogS3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#090086"/><stop offset="100%" stop-color="#2f96a9"/></linearGradient><linearGradient id="cogS4" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b62ca"/><stop offset="100%" stop-color="#93dfe3"/></linearGradient></defs><path d="M0 22 L15.3 44 L31.1 34.5 L22.2 22 Z" fill="url(#cogS1)"/><path d="M15.3 44 L37.1 44 L52.1 22 Z" fill="url(#cogS2)"/><path d="M15.3 0 L0 22 L22.2 22 L31.1 9.5 Z" fill="url(#cogS3)"/><path d="M15.3 0 L52.1 22 L37.1 0 Z" fill="url(#cogS4)"/></svg></div>
+    <div class="splash-welcome">Welcome to</div>
+    <h1 class="splash-title">KOL Engagement</h1>
+    <div class="splash-sub">Agentic MSL Workspace · MSL–HCP 360° Engagement</div>
+    <div class="splash-prog"><span></span></div>
+    <div class="splash-dots"><span></span><span></span><span></span><span></span></div>
+  </div>
+</div>
+<div class="shell">
+  <!-- ===== Top tabs ===== -->
+  <div class="apptabs">
+    <div class="brand"><span class="b"><svg viewBox="0 0 52.1 44" xmlns="http://www.w3.org/2000/svg" aria-label="Cognizant"><defs><linearGradient id="cogH1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3d54ce"/><stop offset="100%" stop-color="#35cacf"/></linearGradient><linearGradient id="cogH2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#13457d"/><stop offset="100%" stop-color="#279698"/></linearGradient><linearGradient id="cogH3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#090086"/><stop offset="100%" stop-color="#2f96a9"/></linearGradient><linearGradient id="cogH4" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b62ca"/><stop offset="100%" stop-color="#93dfe3"/></linearGradient></defs><path d="M0 22 L15.3 44 L31.1 34.5 L22.2 22 Z" fill="url(#cogH1)"/><path d="M15.3 44 L37.1 44 L52.1 22 Z" fill="url(#cogH2)"/><path d="M15.3 0 L0 22 L22.2 22 L31.1 9.5 Z" fill="url(#cogH3)"/><path d="M15.3 0 L52.1 22 L37.1 0 Z" fill="url(#cogH4)"/></svg></span><span id="brandText">Cognizant · Agentic MSL Workspace</span></div>
+    <div class="atab active" data-app="dashboard">📊 Dashboard</div>
+    <div class="atab" data-app="agent">🤖 Agent Workspace</div>
+    <div class="spacer"></div>
+    <span id="awControls" style="display:none; align-items:center; gap:6px;">
+      <button class="hbtn" id="clearBtn">🗑 Clear</button>
+      <button class="hbtn" id="exportBtn">⬇ Export</button>
+    </span>
+    <div class="who">Role: <span id="roleLabel" class="role-label">Medical Science Liaison (MSL)</span></div>
+    <button class="hbtn" id="refreshStats" title="Refresh">↻</button>
+    <button class="hbtn" id="gearBtn" title="Connection settings">⚙</button>
+    <button class="hbtn" id="logoutBtn" title="Log out"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+  </div>
+
+  <!-- ===== TAB 1: Dashboard ===== -->
+  <div class="appview active" id="viewDashboard">
+    <div class="dash">
+      <div class="dash-head">
+        <div><h2 id="dashTitle">MSL Activity Dashboard</h2><div class="role" id="dashRole">Medical Science Liaison (MSL) · MSL–HCP 360° Engagement Flow · live status</div></div>
+      </div>
+      <div class="stat-row" id="statRow"></div>
+      <div class="dash-2col grow">
+        <div class="panel scrollpanel">
+          <h3><span id="engageTitle">HCP Engagement</span> <span id="hcpCount" style="font-weight:400;color:var(--muted);font-size:11px"></span></h3>
+          <div class="ltabs">
+            <div class="ltab active" data-lt="status">📋 Engagement Status</div>
+            <div class="ltab" data-lt="queue">⚡ Action Queue <span class="ltbadge zero" id="queueCount">0</span></div>
+          </div>
+          <div id="ltStatus" class="lt-pane">
+            <div class="filters">
+              <input id="fSearch" placeholder="🔍 Search HCP…" />
+              <select id="fArea"><option value="">All areas</option></select>
+              <select id="fStatus">
+                <option value="">All statuses</option>
+                <option value="approval">Pending approval</option>
+                <option value="awaiting">Awaiting response</option>
+                <option value="progress">In progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            <div class="hcp-table-wrap">
+              <table class="hcp-table">
+                <thead><tr id="hcpHead"><th>HCP</th><th>Therapeutic Area</th><th>Disease</th></tr></thead>
+                <tbody id="hcpRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="ltQueue" class="lt-pane" style="display:none"><div id="queueList"></div></div>
+        </div>
+        <div class="panel scrollpanel">
+          <h3 id="detailTitle">HCP Journey</h3>
+          <div class="pipescroll" id="hcpDetail"></div>
+        </div>
+        <div class="panel scrollpanel dash-chat">
+          <h3>💬 Assistant</h3>
+          <div class="dc-msgs" id="dcMsgs"></div>
+          <div class="dc-input">
+            <input id="dcInput" placeholder="Ask about this HCP, or type “approve”…" autocomplete="off" />
+            <button id="dcSend" title="Send">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 2: Agent Workspace ===== -->
+  <div class="appview" id="viewAgent">
+    <div class="app">
+      <div class="awbody">
+        <aside class="col sidebar">
+          <div class="sec"><h2>Quick Actions</h2><div class="qa">
+            <div id="qaMSL" style="display:contents">
+            <button id="qaKol"><span class="ic">🔎</span><span>Identify &amp; Build KOL Profile<small>discover · score · 360° profile</small></span></button>
+            <button id="qaBrief"><span class="ic">📅</span><span>Outreach &amp; Precall Brief<small>outreach plan &amp; KOL brief</small></span></button>
+            <button class="qa-mini" data-agent="in_call_support_agent"><span class="ic">🎙️</span><span>In-Call Support &amp; Capture<small>Scientific Exchange</small></span></button>
+            <button class="qa-mini" data-agent="post_call_report_agent"><span class="ic">📝</span><span>Post-Call Documentation<small>Scientific Exchange</small></span></button>
+            <button class="qa-mini" data-agent="insight_synthesis_agent"><span class="ic">🧩</span><span>Insight Synthesis &amp; Taxonomy<small>Insight Management</small></span></button>
+            <button class="qa-mini" data-agent="strategy_feedback_agent"><span class="ic">🎯</span><span>Medical Strategy Feedback<small>Insight Management</small></span></button>
+            <button class="qa-mini" data-agent="advisory_board_agent"><span class="ic">👥</span><span>Advisory Board Convening<small>Collaboration</small></span></button>
+            <button class="qa-mini" data-agent="iis_rwe_agent"><span class="ic">🔬</span><span>IIS / RWE Initiation<small>Collaboration</small></span></button>
+            <button class="qa-mini" data-agent="relationship_health_agent"><span class="ic">💟</span><span>Relationship Health Monitoring<small>Collaboration</small></span></button>
+            </div>
+            <div id="qaGeneric" style="display:none"></div>
+          </div></div>
+          <div class="sec grow-sec"><h2>Agents &amp; Tools</h2><div class="tree" id="agentTree"></div></div>
+        </aside>
+        <section class="col center">
+          <div class="graph-panel">
+            <div class="panel-head"><div><div class="title">Agent Orchestration</div><div class="sub">live multi-agent tool invocation</div></div><div class="spacer"></div>
+              <div class="hdr-kpis">
+                <div class="hk"><div class="v" id="kpiAgents">0</div><div class="l">Agents</div></div>
+                <div class="hk g"><div class="v" id="kpiTools">0</div><div class="l">Tools</div></div>
+                <div class="hk g"><div class="v" id="kpiResults">0</div><div class="l">Results</div></div>
+                <div class="hk"><div class="v" id="kpiEvents">0</div><div class="l">Events</div></div>
+              </div>
+            </div>
+            <div class="graph-wrap" id="graphWrap">
+              <div class="zoom"><button id="zoomIn">+</button><button id="zoomOut">−</button><button id="zoomReset" style="font-size:12px">⤢</button></div>
+              <div class="orch-status"><span class="lbl">Orchestrator</span><span id="orchStatus">Idle — pick a quick action to begin.</span></div>
+            </div>
+          </div>
+          <div class="logs-panel">
+            <div class="panel-head" style="padding:8px 14px;"><div class="title" style="font-size:12px;">Activity Log</div><div class="spacer"></div><div class="sub" id="logCount">0 events</div></div>
+            <div class="logs-list" id="logsList"></div>
+          </div>
+        </section>
+        <section class="col chat">
+          <div class="tabs"><div class="tab active" data-tab="chat">Chat<span class="ndot"></span></div><div class="tab" data-tab="trace">Trace<span class="ndot"></span></div><div class="tab" data-tab="data">Data<span class="ndot"></span></div></div>
+          <div class="pane active" id="chatPane"></div>
+          <div class="pane" id="tracePane"></div>
+          <div class="pane" id="dataPane"></div>
+          <div class="chat-input"><textarea id="chatInput" placeholder="Message the agent directly…" rows="1"></textarea><button class="send-btn" id="sendBtn">Send</button></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Footer ===== -->
+  <footer>
+    <div class="foot-tag">
+      <span class="seg"><b id="footRoleLabel">👤 Agentic MSL Employee</b> — onboarded &amp; measured</span>
+      <span class="seg"><b>🛡 Autonomous 24/7</b> — operates within policy guardrails</span>
+      <span class="seg"><b>🧭 Orchestrated</b> — primary agent runs the workflow</span>
+      <span class="seg"><b>✅ Human-in-the-loop</b> — approvals keep humans in control</span>
+    </div>
+    <div class="foot-metrics" id="footMetrics">
+      <div class="fmetric"><div class="h c-purple">KOL Identification</div><div class="big c-green">↓ ~50%</div><div class="d">faster KOL discovery</div><div class="s">multi-source automated</div></div>
+      <div class="fmetric"><div class="h c-blue">Profile Build</div><div class="big c-green">↓ ~60%</div><div class="d">less profiling time</div><div class="s">8 dimensions auto-aggregated</div></div>
+      <div class="fmetric"><div class="h c-green">Outreach</div><div class="big c-blue">↑ 2–4×</div><div class="d">more HCP touchpoints</div><div class="s">drafted &amp; scheduled</div></div>
+      <div class="fmetric"><div class="h c-purple">Pre-Call Brief</div><div class="big c-blue">↑ +30%</div><div class="d">brief quality score</div><div class="s">MLR pre-check automated</div></div>
+      <div class="fmetric"><div class="h c-green">In-Call &amp; Capture</div><div class="big c-blue">↑ ~3×</div><div class="d">insights captured / call</div><div class="s">ambient NLP · MIR &amp; AE flagged</div></div>
+      <div class="fmetric"><div class="h c-blue">Reporting</div><div class="big c-green">↓ ~70%</div><div class="d">reduction in reporting</div><div class="s">8 hr/mo → 2 hr HITL</div></div>
+      <div class="fmetric"><div class="h c-purple">Insight → Strategy</div><div class="big c-green">↓ ~40%</div><div class="d">insight-to-action time</div><div class="s">auto-synthesised &amp; routed</div></div>
+    </div>
+  </footer>
+</div>
+
+<!-- ===== KOL dialog ===== -->
+<div class="overlay" id="kolOverlay"><div class="dialog">
+  <div class="dialog-head"><h3>Identify KOLs — inputs</h3><span class="x" data-close="kolOverlay">×</span></div>
+  <div class="dialog-body">
+    <div class="field"><label>Therapeutic Area</label><input id="inpTA" value="hematology" /></div>
+    <div class="field"><label>Disease</label><input id="inpDisease" value="Paroxysmal Nocturnal Hemoglobinuria" /></div>
+    <div class="field"><label>Product</label><input id="inpProduct" value="Eculizumab" /></div>
+    <div class="field"><label>Generated query</label><div class="preview" id="kolPreview"></div></div>
+  </div>
+  <div class="dialog-foot"><button class="btn" data-close="kolOverlay">Cancel</button><button class="btn primary" id="kolSubmit">Send to agent</button></div>
+</div></div>
+
+<!-- ===== Connection dialog ===== -->
+<div class="overlay" id="authOverlay"><div class="dialog">
+  <div class="dialog-head"><h3>Connect to Vertex AI Agent</h3><span class="x" data-close="authOverlay">×</span></div>
+  <div class="dialog-body">
+    <div id="connStatusLine" style="font-size:12.5px; font-weight:600; padding:10px 12px; border-radius:9px; border:1px solid var(--border); display:flex; align-items:center; gap:9px;"><span id="connStatusDot" style="width:9px;height:9px;border-radius:50%;background:var(--warn)"></span><span id="connStatusText">Simulation mode</span></div>
+    <div class="field"><button class="btn primary" id="googleSignIn" style="width:100%">Sign in with Google</button><p class="hint" id="googleHint" style="margin-top:7px;">Set <code>CONFIG.oauthClientId</code> to enable. A backend/ADK server is recommended (CORS).</p></div>
+    <div class="divider"><div></div>BACKEND / ADK SERVER<div></div></div>
+    <div class="field"><label>Backend URL (recommended)</label><input id="inpProxy" value="http://localhost:8080" placeholder="http://localhost:8080" /></div>
+    <div class="field"><label>HCP email — Power Automate recipient (outreach &amp; meeting)</label><input id="inpHcpEmail" value="ajith.varghese@cognizant.com" placeholder="hcp@example.com" /></div>
+    <div class="divider"><div></div>OR PASTE A TOKEN<div></div></div>
+    <div class="field"><label>Signed-in user (user_id)</label><input id="inpUser" value="ajith.varghese@cognizant.com" /></div>
+    <div class="field"><label>OAuth 2.0 access token</label><textarea class="token" id="inpToken" placeholder="ya29.a0Af..."></textarea></div>
+    <p class="hint"><code>gcloud auth print-access-token</code> · leave all blank for <b>Simulation mode</b>.</p>
+  </div>
+  <div class="dialog-foot"><button class="btn" id="useSim">Use simulation</button><button class="btn primary" id="authSave">Connect</button></div>
+</div></div>
+
+<!-- Config layer: shared per-role config model -->
+<script src="dashboard-config.js"></script>
+<script>
+/* ===== Config ===== */
+const CONFIG = {
+  project: "gbg-poc-ccai", projectNumber: "440504316955", location: "us-central1",
+  reasoningEngine: "2886357111132913664", agentName: "hcp_msl_engagement_agent",
+  oauthClientId: "", oauthScope: "https://www.googleapis.com/auth/cloud-platform", proxyUrl: "",
+};
+CONFIG.resource = `projects/${CONFIG.projectNumber}/locations/${CONFIG.location}/reasoningEngines/${CONFIG.reasoningEngine}`;
+CONFIG.endpoint = `https://${CONFIG.location}-aiplatform.googleapis.com/v1/${CONFIG.resource}:streamQuery?alt=sse`;
+const state = { token: "", proxyUrl: CONFIG.proxyUrl || "", userId: "ajith.varghese@cognizant.com", hcpEmail: "ajith.varghese@cognizant.com", busy: false, role: "MSL" };
+// Power Automate runs through the local proxy (avoids browser CORS). Proxy must be running.
+function paBase() { return (state.proxyUrl ? state.proxyUrl.replace(/\/$/, "") : "http://localhost:8080"); }
+const ROLE_NAMES = { MSL: "Medical Science Liaison", KOL: "Key Opinion Leader", BM: "Business Manager", MM: "Marketing Manager" };
+const KPI = { agents: new Set(), tools: 0, results: 0, events: 0 };
+const $ = (id) => document.getElementById(id);
+const chatPane = $("chatPane"), tracePane = $("tracePane"), dataPane = $("dataPane"), logsList = $("logsList");
+
+/* ===== Tabs ===== */
+function showTab(name) {
+  document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.tab === name));
+  $("chatPane").classList.toggle("active", name === "chat"); $("tracePane").classList.toggle("active", name === "trace"); $("dataPane").classList.toggle("active", name === "data");
+  document.querySelector(`.tab[data-tab="${name}"]`).classList.remove("has-new");
+}
+document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => showTab(t.dataset.tab)));
+function flagTab(name) { const t = document.querySelector(`.tab[data-tab="${name}"]`); if (t && !t.classList.contains("active")) t.classList.add("has-new"); }
+
+/* ===== Renderers ===== */
+function scrollChat() { chatPane.scrollTop = chatPane.scrollHeight; }
+function addMsg(role, text) { const el = document.createElement("div"); el.className = "msg " + role; el.textContent = text; chatPane.appendChild(el); scrollChat(); return el; }
+const escHtml = (s) => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const escAttr = (s) => escHtml(s).replace(/"/g, "&quot;");
+/* Human-in-the-loop: render an editable approval card in the chat and resolve when the MSL decides. */
+function addApproval({ title, subject, body }) {
+  return new Promise((resolve) => {
+    const el = document.createElement("div");
+    el.className = "msg approval";
+    el.innerHTML =
+      `<div class="appv-h">✋ Approval required — ${escHtml(title)}</div>` +
+      `<div class="appv-sub">Review the AI-drafted email. Edit if needed, then approve before it is sent.</div>` +
+      `<div class="appv-field"><label>Subject</label><input class="appv-subj" value="${escAttr(subject)}"></div>` +
+      `<div class="appv-field"><label>Message</label><textarea class="appv-body" rows="8">${escHtml(body)}</textarea></div>` +
+      `<div class="appv-btns"><button class="appv-approve">✓ Approve &amp; Send</button><button class="appv-reject">✗ Reject</button></div>` +
+      `<div class="appv-status"></div>`;
+    chatPane.appendChild(el); scrollChat();
+    const subjEl = el.querySelector(".appv-subj"), bodyEl = el.querySelector(".appv-body"), status = el.querySelector(".appv-status");
+    const finish = (decision) => {
+      el.querySelectorAll("button").forEach((b) => (b.disabled = true));
+      subjEl.disabled = bodyEl.disabled = true;
+      el.classList.add(decision === "approve" ? "approved" : "rejected");
+      status.textContent = decision === "approve" ? "✓ Approved by MSL — sending…" : "✗ Rejected by MSL — email will not be sent.";
+      log(`HITL: email ${decision === "approve" ? "approved" : "rejected"}`, decision === "approve" ? "resp" : "err");
+      resolve({ decision, subject: subjEl.value, body: bodyEl.value });
+    };
+    el.querySelector(".appv-approve").addEventListener("click", () => finish("approve"));
+    el.querySelector(".appv-reject").addEventListener("click", () => finish("reject"));
+  });
+}
+/* Render a read-only pre-call brief card in the chat. */
+function addBriefCard(title, sections) {
+  const el = document.createElement("div");
+  el.className = "msg brief-card";
+  el.innerHTML = `<div class="bc-h">📄 ${escHtml(title)} <span class="bc-tag">MLR-cleared</span></div>` +
+    sections.map((s) => `<div class="bc-sec"><div class="bc-t">${escHtml(s[0])}</div><div class="bc-b">${escHtml(s[1])}</div></div>`).join("");
+  chatPane.appendChild(el); scrollChat(); return el;
+}
+function addTrace(kind, label, payload, open = false) {
+  const det = document.createElement("details"); det.className = "trace"; if (open) det.open = true;
+  det.innerHTML = `<summary><span class="badge ${kind}">${kind}</span><span>${label}</span></summary>`;
+  const body = document.createElement("div"); body.className = "tbody"; const pre = document.createElement("pre");
+  pre.textContent = typeof payload === "string" ? payload : JSON.stringify(payload, null, 2);
+  body.appendChild(pre); det.appendChild(body); tracePane.appendChild(det); flagTab("trace"); tracePane.scrollTop = tracePane.scrollHeight; return { det, pre };
+}
+function addData(label, payload) {
+  const det = document.createElement("details"); det.className = "trace"; det.open = true;
+  det.innerHTML = `<summary><span class="badge resp">resp</span><span>${label}</span></summary>`;
+  const body = document.createElement("div"); body.className = "tbody"; const pre = document.createElement("pre");
+  pre.textContent = typeof payload === "string" ? payload : JSON.stringify(payload, null, 2);
+  body.appendChild(pre); det.appendChild(body); dataPane.appendChild(det); flagTab("data");
+}
+function pad(n) { return String(n).padStart(2, "0"); }
+function nowStr() { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
+function log(text, kind = "sys", who) {
+  const el = document.createElement("div"); el.className = "logline " + kind;
+  el.innerHTML = `<span class="t">${nowStr()}</span> ${who ? `<span class="who">${who}</span> ` : ""}${text}`;
+  logsList.appendChild(el); logsList.scrollTop = logsList.scrollHeight; $("logCount").textContent = `${++KPI.events} events`; $("kpiEvents").textContent = KPI.events;
+}
+function updateKpis() { $("kpiAgents").textContent = KPI.agents.size; $("kpiTools").textContent = KPI.tools; $("kpiResults").textContent = KPI.results; }
+
+/* ===== Connection status (shown in footer + settings dialog) ===== */
+function refreshPill() {
+  const live = !!(state.proxyUrl || state.token);
+  const label = state.proxyUrl ? "Connected · backend" : state.token ? "Connected · token" : "Simulation mode";
+  const fs = $("footStatus"); if (fs) fs.textContent = label;
+  const cst = $("connStatusText"); if (cst) cst.textContent = label;
+  const cd = $("connStatusDot"); if (cd) cd.style.background = live ? "var(--good)" : "var(--warn)";
+}
+
+/* ===== Send to agent ===== */
+async function sendToAgent(query, { fromCard = null } = {}) {
+  if (state.busy) { addMsg("system", "Please wait — still processing."); return; }
+  state.busy = true; $("sendBtn").disabled = true; KPI.agents.clear(); KPI.tools = 0; KPI.results = 0; updateKpis();
+  if (fromCard) { addMsg("system", `▶ ${fromCard}`); log(`triggered: ${fromCard}`, "sys"); }
+  addMsg("user", query); graphReset(); graphBusy(true); setOrchStatus("🧭 Orchestrating request…");
+  const mode = state.proxyUrl ? "backend" : state.token ? "token" : "simulation";
+  addTrace("prompt", "Prompt → hcp_msl_engagement_agent", { mode, message: query, user_id: state.userId }, true); log(`prompt sent (${mode})`, "sys");
+  try {
+    if (state.proxyUrl) await streamLive(query, { url: state.proxyUrl.replace(/\/$/, "") + "/chat", viaProxy: true });
+    else if (state.token) await streamLive(query, { url: CONFIG.endpoint, viaProxy: false });
+    else await streamSimulated(query);
+  } catch (err) {
+    addTrace("error", "Request failed", String(err && err.stack ? err.stack : err), true);
+    addMsg("agent", "⚠ Request failed — see the Trace tab."); log("request failed", "err");
+  } finally {
+    graphBusy(false); setOrchStatus("✅ Run complete."); state.busy = false; $("sendBtn").disabled = false;
+    // Reflect the completed workflow on the Dashboard (Tab 1).
+    if (state.proxyUrl || state.token) loadDashboardStats();           // live: re-pull from backend/BigQuery
+    else if (fromCard && /identify/i.test(fromCard)) onIdentifyComplete(); // simulation: advance demo data
+    else if (fromCard && /(outreach|brief|precall)/i.test(fromCard)) onOutreachComplete();
+  }
+}
+
+async function streamLive(query, { url, viaProxy }) {
+  const headers = { "Content-Type": "application/json" }; let body;
+  if (viaProxy) body = { message: query, userId: state.userId };
+  else { headers["Authorization"] = "Bearer " + state.token; body = { class_method: "stream_query", input: { message: query, user_id: state.userId } }; }
+  const res = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
+  if (!res.ok) { const t = await res.text().catch(() => res.statusText); throw new Error(`HTTP ${res.status}\n${t}`); }
+  const reader = res.body.getReader(); const decoder = new TextDecoder(); let buffer = "", evtIdx = 0;
+  const ctx = { gotText: false, answerEl: null, answerText: "", thoughtEl: null, thoughtText: "" };
+  const emit = (e) => { if (Array.isArray(e)) { e.forEach(emit); return; } renderEvent(e, ++evtIdx, ctx); };
+  while (true) { const { done, value } = await reader.read(); if (done) break; buffer += decoder.decode(value, { stream: true }); const { values, rest } = extractJsonValues(buffer); buffer = rest; values.forEach(emit); }
+  const tail = extractJsonValues(buffer); tail.values.forEach(emit);
+  if (tail.rest.trim() && tail.rest.trim() !== "[DONE]") addTrace("error", "Unparsed remainder", tail.rest, false);
+  chatPane.querySelectorAll(".msg").forEach((el) => { if (!el.textContent.trim()) el.remove(); });
+  if (!ctx.gotText && evtIdx) addMsg("agent", "(Done — see the Trace/Data tabs for the output.)");
+  log(`finished — ${evtIdx} events`, "sys");
+}
+function extractJsonValues(buf) {
+  const values = []; let i = 0, last = 0; const n = buf.length;
+  while (i < n) {
+    if (buf[i] !== "{" && buf[i] !== "[") { i++; continue; }
+    let depth = 0, inStr = false, esc = false, end = -1;
+    for (let j = i; j < n; j++) { const c = buf[j];
+      if (inStr) { if (esc) esc = false; else if (c === "\\") esc = true; else if (c === '"') inStr = false; continue; }
+      if (c === '"') { inStr = true; continue; }
+      if (c === "{" || c === "[") depth++; else if (c === "}" || c === "]") { depth--; if (depth === 0) { end = j; break; } } }
+    if (end === -1) break;
+    try { values.push(JSON.parse(buf.slice(i, end + 1))); } catch (_) {}
+    i = end + 1; last = i;
+  }
+  return { values, rest: buf.slice(last) };
+}
+function resetSegments(ctx) { ctx.answerEl = null; ctx.answerText = ""; ctx.thoughtEl = null; ctx.thoughtText = ""; }
+function appendAnswer(ctx, delta) {
+  if (!delta || !delta.trim()) { if (ctx.answerEl) { ctx.answerText += delta; ctx.answerEl.textContent = ctx.answerText; } return; }
+  if (!ctx.answerEl) { ctx.answerEl = addMsg("agent", ""); ctx.answerText = ""; }
+  if (delta.startsWith(ctx.answerText)) ctx.answerText = delta; else ctx.answerText += delta;
+  ctx.answerEl.textContent = ctx.answerText; ctx.gotText = true; scrollChat();
+}
+function appendThought(ctx, text, who, idx) {
+  if (!ctx.thoughtEl) { ctx.thoughtEl = addTrace("think", `#${idx} · 🧠 reasoning · ${who}`, text, true); ctx.thoughtText = text; return; }
+  if (text.startsWith(ctx.thoughtText)) ctx.thoughtText = text; else ctx.thoughtText += "\n" + text;
+  ctx.thoughtEl.pre.textContent = ctx.thoughtText;
+}
+function renderEvent(event, idx, ctx) {
+  const content = event.content || event; const parts = (content && content.parts) || [];
+  const who = event.author || (content && content.role) || "agent";
+  if (event.author) graphActivateAgent(event.author);
+  for (const part of parts) {
+    if (part.thought === true) { if (part.text) { appendThought(ctx, part.text, who, idx); setOrchStatus("🧠 " + part.text.split("\n")[0].slice(0, 80)); log("reasoning", "think", who); } continue; }
+    if (typeof part.text === "string" && part.text.length) { appendAnswer(ctx, part.text); setOrchStatus("💬 Composing response…"); continue; }
+    const fc = part.function_call || part.functionCall;
+    if (fc) {
+      const fname = fc.name || "(unnamed)", fargs = fc.args || fc.arguments || {};
+      if (/^transfer_to_agent$/i.test(fname)) { const target = fargs.agent_name || fargs.agentName || fargs.agent || fargs.name; addTrace("think", `#${idx} · ⚙ transfer → ${target || "?"}`, fargs, true); log(`transfer → ${target}`, "think", who); if (target) graphActivateAgent(target); }
+      else { addTrace("tool", `#${idx} · 🔧 ${fname}`, { tool: fname, arguments: fargs }, true); graphToolCall(fname); KPI.tools++; updateKpis(); log(`tool: ${fname}`, "tool", who); }
+      resetSegments(ctx); continue;
+    }
+    const fr = part.function_response || part.functionResponse;
+    if (fr) { const rname = fr.name || "(unnamed)"; if (!/^transfer_to_agent$/i.test(rname)) { const resp = fr.response != null ? fr.response : fr; addTrace("tool", `#${idx} · ✅ ${rname}`, resp, true); addData(`${rname} →`, resp); graphToolResult(rname); KPI.results++; updateKpis(); log(`result: ${rname}`, "resp", who); } resetSegments(ctx); continue; }
+    if (part.executable_code || part.executableCode) { addTrace("tool", `#${idx} · 💻 code`, part.executable_code || part.executableCode, true); resetSegments(ctx); continue; }
+    if (part.code_execution_result || part.codeExecutionResult) { addTrace("tool", `#${idx} · 💻 code result`, part.code_execution_result || part.codeExecutionResult, true); resetSegments(ctx); continue; }
+    const meaningful = Object.keys(part).some((k) => !/^(thought|thought_?signature)$/i.test(k));
+    if (meaningful) addTrace("think", `#${idx} · part`, part, false);
+  }
+  const act = event.actions; const transfer = act && (act.transfer_to_agent || act.transferToAgent);
+  const stateD = act && (act.state_delta || act.stateDelta), artD = act && (act.artifact_delta || act.artifactDelta);
+  if (transfer || (stateD && Object.keys(stateD).length) || (artD && Object.keys(artD).length)) { addTrace("think", `#${idx} · ⚙ actions${transfer ? " · transfer → " + transfer : ""}`, act, !!transfer); if (transfer) graphActivateAgent(transfer); resetSegments(ctx); }
+  const err = event.error || event.error_message || event.errorMessage;
+  if (err) { addTrace("error", `#${idx} · error`, err, true); log("agent error", "err", who); resetSegments(ctx); }
+}
+
+/* ===== Simulation ===== */
+function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+async function streamSimulated(query) {
+  const isKol = /identify new hcps/i.test(query);
+  async function runTool(id, callP, resP, ms = 750) {
+    graphToolCall(id); KPI.tools++; updateKpis(); log(`tool: ${id}`, "tool"); addTrace("tool", `🔧 ${id}`, callP, true);
+    await sleep(ms); graphToolResult(id); KPI.results++; updateKpis(); log(`result: ${id}`, "resp"); addTrace("tool", `✅ ${id}`, resP, true); addData(`${id} →`, resP); await sleep(300);
+  }
+  // Like runTool, but the result comes from a real async call (Power Automate via proxy).
+  async function runReal(id, callP, fn, mockP) {
+    graphToolCall(id); KPI.tools++; updateKpis(); log(`tool: ${id}`, "tool"); addTrace("tool", `🔧 ${id}`, callP, true);
+    let resP;
+    try { resP = await fn(); }
+    catch (e) { resP = Object.assign({ _note: "proxy unreachable — showing simulated result", _error: String(e.message || e) }, mockP || {}); }
+    graphToolResult(id); KPI.results++; updateKpis(); log(`result: ${id}`, "resp"); addTrace("tool", `✅ ${id}`, resP, true); addData(`${id} →`, resP); await sleep(300);
+    return resP;
+  }
+  await sleep(400);
+  if (isKol) {
+    graphActivateAgent("identification_agent"); addTrace("think", "🧠 reasoning", "Find HCPs in the disease/product area, score and profile them.", true); log("reasoning", "think", "identification_agent"); await sleep(500);
+    await runTool("hcp_search_agent", { area: extractQuoted(query, 0), disease: extractQuoted(query, 1), product: extractQuoted(query, 2) }, { candidates: [{ name: "Dr. Anita Rao" }, { name: "Dr. Liu Wen" }, { name: "Dr. Marco Bianchi" }] });
+    await runTool("candidate_enrichment_agent", { hcps: 3 }, { enriched: 3 });
+    await runTool("scoring_agent", { criteria: ["influence", "reach"] }, { tier_1: 1, tier_2: 2 });
+    await runTool("profile_generation_agent", { hcps: 3 }, { profiles: 3 });
+    await runTool("save_to_bigquery", { table: "hcp-profiles" }, { status: "saved" });
+    addMsg("agent", `Identified 3 high-priority HCPs for ${extractQuoted(query, 1) || "the disease area"}. Profiles built and saved.`);
+  } else {
+    graphActivateAgent("onboarding_agent"); await sleep(500);
+    const email = state.hcpEmail || "ajith.varghese@cognizant.com";
+    const PA = paBase();
+    await runTool("get_hcp_profiles_from_bigquery", { limit: 5 }, { kols: ["Dr. Anita Rao", "Dr. Liu Wen"] });
+    // Pick the KOL to engage (first profiled, not-yet-contacted) for salutation & topic.
+    const target = HCPS.find((x) => truthy(x.profiled) && !x.meeting_status && !truthy(x.outreach)) || HCPS.find((x) => truthy(x.profiled)) || { hcp: "Doctor", disease: "your therapeutic area" };
+    const hcpName = target.hcp || "Doctor";
+    const hcpDisease = target.disease || "your therapeutic area";
+    // ── Real Power Automate: find available meeting timeslots ──
+    const sug = await runReal("suggest_meeting_timeslots", { to: email, duration: 30 },
+      async () => { const r = await fetch(`${PA}/pa/suggest?to=${encodeURIComponent(email)}&duration=30`); return r.json(); },
+      { slots: ["Mon 18 Jun 2026 · 09:00–09:30 IST", "Tue 19 Jun 2026 · 10:30–11:00 IST", "Wed 20 Jun 2026 · 14:00–14:30 IST"], first: { label: "Mon 18 Jun 2026 · 09:00–09:30 IST" } });
+    const slots = (sug && sug.slots) || [];
+    const slot = sug && sug.first ? sug.first : null;
+    const firstLabel = (slot && slot.label) || slots[0] || "a mutually convenient time (to be confirmed)";
+    // Show ALL available slots in the chat for MSL awareness…
+    if (slots.length) addMsg("agent", `📅 Available meeting slots for ${hcpName}:\n${slots.map((s, i) => `   ${i + 1}.  ${s}`).join("\n")}\n\n→ The first slot will be proposed in the outreach email.`);
+    await runTool("content_preparation_agent", { topic: hcpDisease }, { deck: "ready" });
+    // ── Draft the outreach email (only the FIRST slot is proposed in the email) ──
+    const draftSubject = "Meeting request — scientific exchange & collaboration";
+    const emailMsg = `Dear ${hcpName},\n\nI hope this email finds you well.\n\nI am writing to you as a Medical Science Liaison with a focus on your distinguished work in ${hcpDisease}.\n\nGiven your expertise, I would like to schedule a brief meeting to discuss recent Phase 3 data and potential areas for scientific collaboration. Based on current availability, I would like to propose the following time:\n\nProposed Time: ${firstLabel}\n\nIs this time convenient for you? If not, please let me know, and I will be happy to provide alternative options that better suit your schedule.\n\nFor your reference, I can share relevant scientific materials ahead of our discussion.\n\nLooking forward to your response.\n\nSincerely,\n${state.userId}\nMedical Science Liaison`;
+    addTrace("think", "🧠 reasoning", "Outreach email drafted — awaiting MSL approval before sending.", true);
+    setOrchStatus("✋ Awaiting MSL approval of the outreach email…");
+    log("HITL: awaiting email approval", "think");
+    const approval = await addApproval({ title: "Outreach email to KOL", subject: draftSubject, body: emailMsg });
+    if (approval.decision === "approve") {
+      const subject = approval.subject, message = approval.body;
+      // ── Real Power Automate: send the (approved) outreach email ──
+      const emailRes = await runReal("send_email_to_hcp", { to: email, subject, message },
+        async () => { const r = await fetch(`${PA}/pa/email`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: email, subject, message }) }); return r.json(); },
+        { status: "sent (approved)" });
+      // ── Real Power Automate: schedule the meeting on the first suggested slot ──
+      const schedRes = await runReal("schedule_meeting_with_hcp", { to: email, startTime: slot && slot.start, endTime: slot && slot.end },
+        async () => { const r = await fetch(`${PA}/pa/schedule`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: email, subject: "MSL Discussion — Phase 3 data", body: "Looking forward to our discussion.", startTime: slot && slot.start, endTime: slot && slot.end }) }); return r.json(); },
+        { calendar: "proposed" });
+      const reached = (r) => r && !r._note;                      // proxy responded
+      const ok = (r) => reached(r) && r.ok !== false;             // Power Automate accepted it
+      if (!reached(emailRes) && !reached(schedRes)) addMsg("system", `⚠ Backend not reachable at ${PA} — email & meeting were simulated. Start the proxy (cd proxy → npm start) to send for real.`);
+      else if (ok(emailRes) || ok(schedRes)) addMsg("system", `📧 Email ${ok(emailRes) ? "sent to Outlook ✓" : "failed"} · meeting ${ok(schedRes) ? "scheduled in Outlook ✓" : "failed"} → ${email}`);
+      else addMsg("system", `⚠ Email could not be sent (${(emailRes && emailRes.raw) || (emailRes && emailRes._error) || "see Trace"}). Check the Trace tab for the exact error.`);
+    } else {
+      addMsg("system", "🛑 MSL rejected the outreach email — send & meeting scheduling skipped. The draft can be revised and re-run.");
+      log("email send skipped (rejected)", "err");
+    }
+    await runTool("save_outreach_plan_to_bigquery", {}, { status: "saved" });
+    await runTool("save_outreach_plan_to_sharepoint", { site: "MSL Team" }, { status: "uploaded" });
+    addTrace("think", "🧠 reasoning", "Outreach saved to BigQuery & SharePoint. Delegating to kol_brief_agent.", true); graphActivateAgent("kol_brief_agent"); log("transfer → kol_brief_agent", "think"); await sleep(500);
+    await runTool("get_hcp_profiles_from_bigquery", { hcp: "Dr. Sarah Chen" }, { profile: "loaded" });
+    await runTool("hcp_search_agent", { refresh: true }, { latest_publications: 3 });
+    await runTool("candidate_enrichment_agent", { dimensions: 8 }, { enriched: true });
+    await runTool("scoring_agent", { recompute: true }, { tier: 1 });
+    await runTool("profile_generation_agent", { for: "pre-call brief" }, { sections: 7 });
+    await runTool("get_brief_from_bigquery", { check: "existing" }, { found: false });
+    await runTool("save_brief_to_bigquery", {}, { status: "saved" });
+    addMsg("agent", "Outreach plan prepared and Pre-Call KOL brief generated.");
+    // Render the generated pre-call brief in the chat.
+    addBriefCard(`Pre-Call Brief — ${hcpName}`, [
+      ["360° Profile Snapshot", `${hcpName} · ${hcpDisease} · key publications, congress faculty & guideline involvement aggregated across 8 dimensions.`],
+      ["MLR-cleared Key Messages", "Label-consistent efficacy & safety messages prepared for the indication."],
+      ["Competitor & Guideline Landscape", "Current standard of care and the latest guideline positioning summarised."],
+      ["Discussion Agenda", "1) Recent Phase 3 data  2) Clinical questions  3) Collaboration interest."],
+      ["AECE Statistical Framing", "Pre-cleared statistical framing for the key efficacy endpoints."],
+      ["Anticipated Questions (persona sim)", "Likely HCP questions with model answers prepared in advance."],
+      ["Discussion Guide", "Open with registry outcomes → bridge to durability data → close on next steps."],
+    ]);
+  }
+}
+function extractQuoted(str, idx) { const m = str.match(/'([^']*)'/g) || []; return m[idx] ? m[idx].replace(/'/g, "") : ""; }
+function buildKolQuery(ta, disease, product) { return `Identify new HCPs in '${ta}', disease area '${disease}', product experience '${product}'`; }
+const OUTREACH_QUERY = "Prepare outreach plan and pre-call KOL brief";
+
+/* ===== Orchestration graph ===== */
+const SVGNS = "http://www.w3.org/2000/svg";
+const MSL_ARCH = [
+  { id: "hcp_msl_engagement_agent", parent: null, kind: "root" },
+  { id: "identification_agent", parent: "hcp_msl_engagement_agent", kind: "agent", group: 0 },
+  { id: "kol_brief_agent", parent: "hcp_msl_engagement_agent", kind: "agent", group: 1 },
+  { id: "onboarding_agent", parent: "hcp_msl_engagement_agent", kind: "agent", group: 2 },
+  { id: "hcp_search_agent", name: "hcp_search_agent", parent: "identification_agent", kind: "tool", group: 0 },
+  { id: "candidate_enrichment_agent", name: "candidate_enrichment_agent", parent: "identification_agent", kind: "tool", group: 0 },
+  { id: "scoring_agent", name: "scoring_agent", parent: "identification_agent", kind: "tool", group: 0 },
+  { id: "profile_generation_agent", name: "profile_generation_agent", parent: "identification_agent", kind: "tool", group: 0 },
+  { id: "save_to_bigquery", name: "save_to_bigquery", parent: "identification_agent", kind: "tool", group: 0 },
+  { id: "get_hcp_profiles_from_bigquery", name: "get_hcp_profiles_from_bigquery", parent: "onboarding_agent", kind: "tool", group: 2 },
+  { id: "suggest_meeting_timeslots", name: "suggest_meeting_timeslots", parent: "onboarding_agent", kind: "tool", group: 2 },
+  { id: "content_preparation_agent", name: "content_preparation_agent", parent: "onboarding_agent", kind: "tool", group: 2 },
+  { id: "send_email_to_hcp", name: "send_email_to_hcp", parent: "onboarding_agent", kind: "tool", group: 2 },
+  { id: "schedule_meeting_with_hcp", name: "schedule_meeting_with_hcp", parent: "onboarding_agent", kind: "tool", group: 2 },
+  { id: "save_outreach_plan_to_bigquery", name: "save_outreach_plan_to_bigquery", parent: "onboarding_agent", kind: "tool", group: 2 },
+  { id: "save_outreach_plan_to_sharepoint", name: "save_outreach_plan_to_sharepoint", parent: "onboarding_agent", kind: "tool", group: 2 },
+  { id: "get_hcp_profiles_from_bigquery_kb", name: "get_hcp_profiles_from_bigquery", parent: "kol_brief_agent", kind: "tool", group: 1 },
+  { id: "hcp_search_agent_kb", name: "hcp_search_agent", parent: "kol_brief_agent", kind: "tool", group: 1 },
+  { id: "candidate_enrichment_agent_kb", name: "candidate_enrichment_agent", parent: "kol_brief_agent", kind: "tool", group: 1 },
+  { id: "scoring_agent_kb", name: "scoring_agent", parent: "kol_brief_agent", kind: "tool", group: 1 },
+  { id: "profile_generation_agent_kb", name: "profile_generation_agent", parent: "kol_brief_agent", kind: "tool", group: 1 },
+  { id: "save_brief_to_bigquery", name: "save_brief_to_bigquery", parent: "kol_brief_agent", kind: "tool", group: 1 },
+  { id: "get_brief_from_bigquery", name: "get_brief_from_bigquery", parent: "kol_brief_agent", kind: "tool", group: 1 },
+  // ── Scientific Exchange ──
+  { id: "in_call_support_agent", parent: "hcp_msl_engagement_agent", kind: "agent", group: 3 },
+  { id: "surface_mlr_content", name: "surface_mlr_content", parent: "in_call_support_agent", kind: "tool", group: 3 },
+  { id: "nlp_coaching_prompts", name: "nlp_coaching_prompts", parent: "in_call_support_agent", kind: "tool", group: 3 },
+  { id: "capture_notes_sentiment", name: "capture_notes_sentiment", parent: "in_call_support_agent", kind: "tool", group: 3 },
+  { id: "detect_ae_signal", name: "detect_ae_signal", parent: "in_call_support_agent", kind: "tool", group: 3 },
+  { id: "post_call_report_agent", parent: "hcp_msl_engagement_agent", kind: "agent", group: 4 },
+  { id: "transcribe_minutes", name: "transcribe_minutes", parent: "post_call_report_agent", kind: "tool", group: 4 },
+  { id: "extract_insights_actions", name: "extract_insights_actions", parent: "post_call_report_agent", kind: "tool", group: 4 },
+  { id: "draft_field_report", name: "draft_field_report", parent: "post_call_report_agent", kind: "tool", group: 4 },
+  { id: "route_to_crm_mi_pv", name: "route_to_crm_mi_pv", parent: "post_call_report_agent", kind: "tool", group: 4 },
+  // ── Insight Management ──
+  { id: "insight_synthesis_agent", parent: "hcp_msl_engagement_agent", kind: "agent", group: 5 },
+  { id: "ingest_call_reports", name: "ingest_call_reports", parent: "insight_synthesis_agent", kind: "tool", group: 5 },
+  { id: "nlp_clustering", name: "nlp_clustering", parent: "insight_synthesis_agent", kind: "tool", group: 5 },
+  { id: "generate_heat_map", name: "generate_heat_map", parent: "insight_synthesis_agent", kind: "tool", group: 5 },
+  { id: "build_insight_taxonomy", name: "build_insight_taxonomy", parent: "insight_synthesis_agent", kind: "tool", group: 5 },
+  { id: "strategy_feedback_agent", parent: "hcp_msl_engagement_agent", kind: "agent", group: 3 },
+  { id: "prioritise_insights", name: "prioritise_insights", parent: "strategy_feedback_agent", kind: "tool", group: 3 },
+  { id: "frame_for_audience", name: "frame_for_audience", parent: "strategy_feedback_agent", kind: "tool", group: 3 },
+  { id: "draft_insight_brief", name: "draft_insight_brief", parent: "strategy_feedback_agent", kind: "tool", group: 3 },
+  { id: "route_cross_functional", name: "route_cross_functional", parent: "strategy_feedback_agent", kind: "tool", group: 3 },
+  // ── Collaboration ──
+  { id: "advisory_board_agent", parent: "hcp_msl_engagement_agent", kind: "agent", group: 4 },
+  { id: "draft_adboard_concept", name: "draft_adboard_concept", parent: "advisory_board_agent", kind: "tool", group: 4 },
+  { id: "identify_kol_panel", name: "identify_kol_panel", parent: "advisory_board_agent", kind: "tool", group: 4 },
+  { id: "prepare_mlr_materials", name: "prepare_mlr_materials", parent: "advisory_board_agent", kind: "tool", group: 4 },
+  { id: "capture_adboard_minutes", name: "capture_adboard_minutes", parent: "advisory_board_agent", kind: "tool", group: 4 },
+  { id: "iis_rwe_agent", parent: "hcp_msl_engagement_agent", kind: "agent", group: 5 },
+  { id: "match_investigator", name: "match_investigator", parent: "iis_rwe_agent", kind: "tool", group: 5 },
+  { id: "generate_protocol_concept", name: "generate_protocol_concept", parent: "iis_rwe_agent", kind: "tool", group: 5 },
+  { id: "estimate_budget", name: "estimate_budget", parent: "iis_rwe_agent", kind: "tool", group: 5 },
+  { id: "assemble_iis_package", name: "assemble_iis_package", parent: "iis_rwe_agent", kind: "tool", group: 5 },
+  { id: "relationship_health_agent", parent: "hcp_msl_engagement_agent", kind: "agent", group: 3 },
+  { id: "monitor_cadence", name: "monitor_cadence", parent: "relationship_health_agent", kind: "tool", group: 3 },
+  { id: "score_relationship_health", name: "score_relationship_health", parent: "relationship_health_agent", kind: "tool", group: 3 },
+  { id: "flag_lapsing_relationships", name: "flag_lapsing_relationships", parent: "relationship_health_agent", kind: "tool", group: 3 },
+  { id: "ai_coaching_prompts", name: "ai_coaching_prompts", parent: "relationship_health_agent", kind: "tool", group: 3 },
+];
+const GRAPH = { byId: {}, byName: {}, nodes: [], edgeG: null, nodeG: null, orch: null, svg: null, cx: 0, cy: 0, currentAgent: null, dyn: 0, vb: null };
+const norm = (s) => String(s || "").toLowerCase().trim();
+function mk(tag, attrs) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+function placeLabel(g, n, r) {
+  const a = (n.angle == null ? 0 : n.angle) * Math.PI / 180, c = Math.cos(a); let t;
+  if (n.kind === "agent") t = mk("text", { x: n.x, y: n.y - r - 9, class: "lbl-mid" });
+  else if (c >= 0) t = mk("text", { x: n.x + r + 7, y: n.y + 4, class: "lbl-start" });
+  else t = mk("text", { x: n.x - r - 7, y: n.y + 4, class: "lbl-end" });
+  const lbl = n.name || n.id; t.textContent = lbl; const ti = mk("title"); ti.textContent = lbl; g.appendChild(ti); g.appendChild(t);
+}
+function buildGraph() {
+  const wrap = $("graphWrap"); if (!wrap) return;
+  const old = wrap.querySelector("svg.graph"); if (old) old.remove();   // allow rebuild on role switch
+  GRAPH.byId = {}; GRAPH.byName = {}; GRAPH.nodes = []; GRAPH.currentAgent = null; GRAPH.dyn = 0;
+  const W = 1480, H = 1120, R1 = 250, RT = 145; GRAPH.cx = W / 2; GRAPH.cy = H / 2; const deg = (d) => (d * Math.PI) / 180; GRAPH.vb = { x: GRAPH.cx - 520, y: GRAPH.cy - 395, w: 1040, h: 790 };
+  const svg = mk("svg", { class: "graph", viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "xMidYMid meet" });
+  const defs = mk("defs"), grad = mk("radialGradient", { id: "orchGrad" });
+  grad.appendChild(mk("stop", { offset: "0%", "stop-color": "#5b9bff" })); grad.appendChild(mk("stop", { offset: "100%", "stop-color": "#7c5cff" })); defs.appendChild(grad); svg.appendChild(defs);
+  const edgeG = mk("g"), nodeG = mk("g"); GRAPH.edgeG = edgeG; GRAPH.nodeG = nodeG;
+  const agents = ARCH.filter((n) => n.kind === "agent"), root = ARCH.find((n) => n.kind === "root");
+  root.x = GRAPH.cx; root.y = GRAPH.cy;
+  // Agents evenly spaced around the root; each agent's tools fan locally around it (revealed on demand).
+  const aStep = 360 / agents.length;
+  agents.forEach((a, i) => {
+    a.angle = -90 + i * aStep; a.x = GRAPH.cx + R1 * Math.cos(deg(a.angle)); a.y = GRAPH.cy + R1 * Math.sin(deg(a.angle));
+    const tools = ARCH.filter((n) => n.kind === "tool" && n.parent === a.id);
+    const arc = Math.min(108, Math.max(46, tools.length * 20)), start = a.angle - arc / 2, gap = tools.length > 1 ? arc / (tools.length - 1) : 0;
+    tools.forEach((t, k) => { t.angle = tools.length > 1 ? start + k * gap : a.angle; t.x = a.x + RT * Math.cos(deg(t.angle)); t.y = a.y + RT * Math.sin(deg(t.angle)); });
+  });
+  ARCH.forEach((n) => { GRAPH.byId[norm(n.id)] = n; (GRAPH.byName[norm(n.name || n.id)] = GRAPH.byName[norm(n.name || n.id)] || []).push(n); GRAPH.nodes.push(n); });
+  ARCH.forEach((n) => { if (n.kind === "root") return; const p = GRAPH.byId[norm(n.parent)]; n.edge = mk("line", { class: "edge", x1: p.x, y1: p.y, x2: n.x, y2: n.y }); if (n.kind === "tool") n.edge.classList.add("hidden"); edgeG.appendChild(n.edge); });
+  ARCH.forEach((n) => { if (n.kind === "root") return; const r = n.kind === "agent" ? 21 : 13; const g = mk("g", { class: `node ${n.kind} g${n.group}` }); g.appendChild(mk("circle", { cx: n.x, cy: n.y, r })); placeLabel(g, n, r); n.g = g; if (n.kind === "tool") g.classList.add("hidden"); if (n.kind === "agent") g.addEventListener("click", () => graphToggleAgent(n.id)); nodeG.appendChild(g); });
+  const og = mk("g", { class: "orch" }); og.appendChild(mk("circle", { cx: root.x, cy: root.y, r: 46 }));
+  const t1 = mk("text", { x: root.x, y: root.y - 2 }); t1.textContent = (AGENT_ROOT && AGENT_ROOT.l1) || "agent"; const t2 = mk("text", { x: root.x, y: root.y + 15, class: "sub" }); t2.textContent = (AGENT_ROOT && AGENT_ROOT.l2) || "workspace";
+  og.appendChild(t1); og.appendChild(t2); GRAPH.orch = og; root.g = og;
+  svg.appendChild(edgeG); svg.appendChild(nodeG); svg.appendChild(og); wrap.appendChild(svg); GRAPH.svg = svg;
+}
+// Reveal an agent's tool fan (additive — previously-run agents stay visible during a run).
+function graphRevealAgent(id) {
+  const key = norm(id);
+  GRAPH.nodes.forEach((n) => {
+    if (n.kind !== "tool") return;
+    if (norm(n.parent) === key) { if (n.g) n.g.classList.remove("hidden", "dim"); if (n.edge) n.edge.classList.remove("hidden", "dim"); }
+    else if (n.g && !n.g.classList.contains("hidden")) { n.g.classList.add("dim"); if (n.edge) n.edge.classList.add("dim"); } // ghost the previous fans
+  });
+}
+function graphHideAgent(id) { const key = norm(id); GRAPH.nodes.forEach((n) => { if (n.kind !== "tool" || norm(n.parent) !== key) return; if (n.g) { n.g.classList.add("hidden"); n.g.classList.remove("dim"); } if (n.edge) { n.edge.classList.add("hidden"); n.edge.classList.remove("dim"); } }); }
+function graphHideTools() { GRAPH.nodes.forEach((n) => { if (n.kind !== "tool") return; if (n.g) { n.g.classList.add("hidden"); n.g.classList.remove("dim"); } if (n.edge) { n.edge.classList.add("hidden"); n.edge.classList.remove("dim"); } }); }
+function graphToggleAgent(id) { const key = norm(id); const bright = GRAPH.nodes.some((n) => n.kind === "tool" && norm(n.parent) === key && n.g && !n.g.classList.contains("hidden") && !n.g.classList.contains("dim")); if (bright) graphHideAgent(id); else graphRevealAgent(id); }
+function graphNode(id) { return GRAPH.byId[norm(id)] || null; }
+function setOrchStatus(txt) { const el = $("orchStatus"); if (el) el.textContent = txt; }
+function graphBusy(on) { if (GRAPH.orch) GRAPH.orch.classList.toggle("busy", on); }
+/* Small inline integration icons so tools are clearly distinguishable. */
+const ICONS = {
+  bq: '<svg width="14" height="14" viewBox="0 0 24 24" title="Google BigQuery"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="#4285F4" stroke-width="2.4"/><circle cx="10.5" cy="10.5" r="2.6" fill="#34A853"/><line x1="15.5" y1="15.5" x2="20.5" y2="20.5" stroke="#4285F4" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  mail: '<svg width="14" height="14" viewBox="0 0 24 24" title="Outlook email"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5" fill="#0F6CBD"/><path d="M3.5 7.5l8.5 5.5 8.5-5.5" fill="none" stroke="#fff" stroke-width="1.8"/></svg>',
+  cal: '<svg width="14" height="14" viewBox="0 0 24 24" title="Outlook calendar"><rect x="3" y="4.5" width="18" height="16" rx="2.5" fill="#0F6CBD"/><rect x="3" y="4.5" width="18" height="4.5" fill="#0a4f8c"/><rect x="6.5" y="11.5" width="4" height="3.6" rx="1" fill="#fff"/><rect x="13" y="11.5" width="4" height="3.6" rx="1" fill="#fff" opacity=".7"/></svg>',
+  sp: '<svg width="14" height="14" viewBox="0 0 24 24" title="SharePoint"><circle cx="12" cy="12" r="9" fill="#038387"/><text x="12" y="16" font-size="11" fill="#fff" text-anchor="middle" font-family="sans-serif" font-weight="700">S</text></svg>',
+  vault: '<svg width="14" height="14" viewBox="0 0 24 24" title="MLR / Vault"><rect x="5" y="3" width="14" height="18" rx="2.5" fill="#7c5cff"/><line x1="8" y1="8" x2="16" y2="8" stroke="#fff" stroke-width="1.5"/><line x1="8" y1="12" x2="16" y2="12" stroke="#fff" stroke-width="1.5"/><line x1="8" y1="16" x2="13" y2="16" stroke="#fff" stroke-width="1.5"/></svg>',
+  agent: '<svg width="14" height="14" viewBox="0 0 24 24" title="AI agent"><circle cx="12" cy="12" r="8.5" fill="#eaf1ff" stroke="#4f8cff" stroke-width="1.4"/><path d="M12 7.2l1.3 3 3 1.3-3 1.3-1.3 3-1.3-3-3-1.3 3-1.3z" fill="#4f8cff"/></svg>',
+};
+function toolIcon(id) {
+  const s = id.toLowerCase();
+  if (s.includes("bigquery")) return ICONS.bq;
+  if (s.includes("send_email")) return ICONS.mail;
+  if (s.includes("schedule_meeting") || s.includes("meeting_timeslots")) return ICONS.cal;
+  if (s.includes("sharepoint")) return ICONS.sp;
+  if (s.includes("content_preparation")) return ICONS.vault;
+  return ICONS.agent;
+}
+/* Per-agent tool lists exactly as defined in each agent's tools=[...] (shared tools repeat). */
+const MSL_TREE = [
+  { id: "identification_agent", group: 0, cluster: "Identification & Profiling", tools: ["hcp_search_agent", "candidate_enrichment_agent", "scoring_agent", "profile_generation_agent", "save_to_bigquery"] },
+  { id: "onboarding_agent", group: 2, cluster: "Outreach & Onboarding", tools: ["get_hcp_profiles_from_bigquery", "suggest_meeting_timeslots", "content_preparation_agent", "send_email_to_hcp", "schedule_meeting_with_hcp", "save_outreach_plan_to_bigquery", "save_outreach_plan_to_sharepoint"] },
+  { id: "kol_brief_agent", group: 1, cluster: "Outreach & Onboarding", tools: ["get_hcp_profiles_from_bigquery", "hcp_search_agent", "candidate_enrichment_agent", "scoring_agent", "profile_generation_agent", "save_brief_to_bigquery", "get_brief_from_bigquery"] },
+  { id: "in_call_support_agent", group: 3, cluster: "Scientific Exchange", tools: ["surface_mlr_content", "nlp_coaching_prompts", "capture_notes_sentiment", "detect_ae_signal"] },
+  { id: "post_call_report_agent", group: 4, cluster: "Scientific Exchange", tools: ["transcribe_minutes", "extract_insights_actions", "draft_field_report", "route_to_crm_mi_pv"] },
+  { id: "insight_synthesis_agent", group: 5, cluster: "Insight Management", tools: ["ingest_call_reports", "nlp_clustering", "generate_heat_map", "build_insight_taxonomy"] },
+  { id: "strategy_feedback_agent", group: 3, cluster: "Insight Management", tools: ["prioritise_insights", "frame_for_audience", "draft_insight_brief", "route_cross_functional"] },
+  { id: "advisory_board_agent", group: 4, cluster: "Collaboration", tools: ["draft_adboard_concept", "identify_kol_panel", "prepare_mlr_materials", "capture_adboard_minutes"] },
+  { id: "iis_rwe_agent", group: 5, cluster: "Collaboration", tools: ["match_investigator", "generate_protocol_concept", "estimate_budget", "assemble_iis_package"] },
+  { id: "relationship_health_agent", group: 3, cluster: "Collaboration", tools: ["monitor_cadence", "score_relationship_health", "flag_lapsing_relationships", "ai_coaching_prompts"] },
+];
+function buildAgentTree() {
+  const wrap = $("agentTree"); if (!wrap) return;
+  wrap.innerHTML = TREE.map((a) =>
+    `<div class="tgroup collapsed" data-group="${norm(a.id)}"><div class="tnode agent g${a.group}" data-id="${norm(a.id)}"><span class="tchev">▸</span><span class="tdot"></span><span class="tlbl"><span class="tname">${a.id}</span><span class="tcluster">${a.cluster || ""}</span></span></div>` +
+    `<div class="tkids" data-agent="${norm(a.id)}">${a.tools.map((t) => `<div class="tnode tool" data-id="${norm(t)}"><span class="tdot"></span><span class="ticon">${toolIcon(t)}</span><span class="tname">${t}</span></div>`).join("")}</div></div>`
+  ).join("");
+  wrap.querySelectorAll(".tnode.agent").forEach((h) => h.addEventListener("click", () => h.closest(".tgroup").classList.toggle("collapsed")));
+}
+
+/* ===== Agent Workspace: config-driven per Division+Role =====
+   MSL keeps its bespoke ARCH/TREE + quick actions; every other role's agents,
+   tools and quick actions come from its config (defaults from stages, editable
+   via the Excel #AGENTS section). */
+let ARCH = MSL_ARCH, TREE = MSL_TREE, AGENT_ROOT = { l1: "hcp_msl", l2: "engagement" };
+const QA_EMOJI = ["🔎", "📅", "🧩", "🎯", "👥", "🔬", "💟", "📝", "⚙️", "📊", "🧠", "🚀"];
+function slugTool(s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").split("_").filter(Boolean).slice(0, 4).join("_"); }
+function deriveAgents(cfg) {
+  const list = (cfg.stages || []).map((s, i) => {
+    let tools = (s.tasks && s.tasks.length ? s.tasks.slice(0, 4) : [s.name]).map(slugTool).filter(Boolean);
+    if (!tools.length) tools = ["run_" + slugTool(s.name)];
+    return { id: s.key + "_agent", label: s.name, cluster: s.col, group: i % 6, tools };
+  });
+  return { root: { l1: (cfg.code || "agent").toLowerCase().slice(0, 9), l2: "workspace" }, list };
+}
+function agentsToArch(ag) {
+  const arch = [{ id: "__root__", parent: null, kind: "root" }];
+  (ag.list || []).forEach((a) => {
+    arch.push({ id: a.id, parent: "__root__", kind: "agent", group: a.group });
+    (a.tools || []).forEach((t, k) => arch.push({ id: a.id + "__" + t + "__" + k, name: t, parent: a.id, kind: "tool", group: a.group }));
+  });
+  return arch;
+}
+function agentsToTree(ag) { return (ag.list || []).map((a) => ({ id: a.id, group: a.group, cluster: a.cluster, tools: a.tools || [] })); }
+function applyAgentConfig(cfg) {
+  const isMsl = cfg.mode === "msl";
+  const ag = isMsl ? (cfg.agents || {}) : (cfg.agents && cfg.agents.list && cfg.agents.list.length ? cfg.agents : deriveAgents(cfg));
+  ARCH = isMsl ? (ag.arch || MSL_ARCH) : agentsToArch(ag);
+  TREE = isMsl ? (ag.tree || MSL_TREE) : agentsToTree(ag);
+  AGENT_ROOT = ag.root || { l1: "hcp_msl", l2: "engagement" };
+  buildGraph(); buildAgentTree();
+  const msl = $("qaMSL"), gen = $("qaGeneric");
+  if (isMsl) {
+    if (msl) msl.style.display = "contents";
+    if (gen) { gen.style.display = "none"; gen.innerHTML = ""; }
+  } else {
+    if (msl) msl.style.display = "none";
+    if (gen) {
+      gen.style.display = "contents";
+      gen.innerHTML = (ag.list || []).map((a, i) => `<button data-agent="${a.id}"><span class="ic">${QA_EMOJI[i % QA_EMOJI.length]}</span><span>${a.label}<small>${a.cluster || ""}</small></span></button>`).join("");
+      gen.querySelectorAll("button[data-agent]").forEach((b) => b.addEventListener("click", () => runAgentDemo(b.dataset.agent)));
+    }
+  }
+  graphReset();
+}
+// Expand a single agent's tools, collapse the others, and scroll it into view.
+function treeExpand(agentId) {
+  const key = norm(agentId);
+  document.querySelectorAll("#agentTree .tgroup").forEach((g) => g.classList.toggle("collapsed", g.dataset.group !== key));
+  const grp = document.querySelector(`#agentTree .tgroup[data-group="${key}"]`);
+  if (grp) grp.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+const TRIGGERS = [
+  { t: "Medical strategy decision (new TA / launch)", act: "kol" },
+  { t: "Advisory board planning", act: "kol" },
+  { t: "CRM territory gap flag", act: "kol" },
+  { t: "KOL approved → start outreach", act: "brief" },
+  { t: "Meeting confirmed → pre-call brief", act: "brief" },
+];
+function buildTriggers() {
+  const wrap = $("triggerList"); if (!wrap) return;
+  wrap.innerHTML = TRIGGERS.map((x, i) => `<div class="trig" data-i="${i}" title="Run the workflow this trigger activates"><span class="ti">⚡</span><span class="tt">${x.t}</span></div>`).join("");
+  wrap.querySelectorAll(".trig").forEach((el) => el.addEventListener("click", () => { const x = TRIGGERS[+el.dataset.i]; (x.act === "kol" ? $("qaKol") : $("qaBrief")).click(); }));
+}
+function treeSet(id, cls) {
+  let els = document.querySelectorAll(`#agentTree [data-id="${norm(id)}"]`);
+  // Shared tool name → only light the instance under the active agent.
+  if (els.length > 1 && GRAPH.currentAgent) {
+    const scoped = document.querySelectorAll(`#agentTree .tkids[data-agent="${norm(GRAPH.currentAgent.id)}"] [data-id="${norm(id)}"]`);
+    if (scoped.length) els = scoped;
+  }
+  els.forEach((el) => {
+    if (cls === "active") { el.classList.remove("done"); el.classList.add("active"); }
+    else if (cls === "done") { el.classList.remove("active"); el.classList.add("done"); }
+    else el.classList.remove("active", "done");
+  });
+}
+function graphActivateAgent(id) {
+  const n = graphNode(id); if (!n) return; if (n.kind === "root") { graphBusy(true); return; } if (n.kind !== "agent") return;
+  if (GRAPH.currentAgent && GRAPH.currentAgent !== n) { GRAPH.currentAgent.g.classList.replace("active", "done"); GRAPH.currentAgent.edge.classList.replace("active", "done"); treeSet(GRAPH.currentAgent.id, "done"); }
+  n.edge.classList.remove("done"); n.edge.classList.add("active"); n.g.classList.remove("done"); n.g.classList.add("active", "pulse"); setTimeout(() => n.g.classList.remove("pulse"), 650);
+  GRAPH.currentAgent = n; graphBusy(true); treeSet(n.id, "active"); treeExpand(n.id); graphRevealAgent(n.id); KPI.agents.add(n.id); updateKpis(); setOrchStatus(`🧭 ${n.id} working…`);
+}
+function toolTargets(name) {
+  let nodes = GRAPH.byName[norm(name)];
+  if (!nodes || !nodes.length) { const sp = graphSpawn(name); return sp ? [sp] : []; }
+  if (GRAPH.currentAgent) { const pref = nodes.filter((n) => n.parent === GRAPH.currentAgent.id); if (pref.length) return pref; }
+  return nodes;
+}
+function graphToolCall(name) {
+  const targets = toolTargets(name); if (!targets.length) return;
+  targets.forEach((n) => { if (!n.edge) return; if (GRAPH.currentAgent && n.parent !== GRAPH.currentAgent.id) { n.edge.setAttribute("x1", GRAPH.currentAgent.x); n.edge.setAttribute("y1", GRAPH.currentAgent.y); } n.edge.classList.remove("done"); n.edge.classList.add("active"); n.g.classList.remove("done"); n.g.classList.add("active", "pulse"); setTimeout(() => n.g.classList.remove("pulse"), 650); });
+  treeSet(name, "active"); graphBusy(true); setOrchStatus(`🔧 ${name} invoked…`);
+}
+function graphToolResult(name) {
+  const targets = toolTargets(name); if (!targets.length) return;
+  targets.forEach((n) => { if (!n.edge) return; n.edge.classList.remove("active"); n.edge.classList.add("done"); n.g.classList.remove("active"); n.g.classList.add("done", "pulse"); setTimeout(() => n.g.classList.remove("pulse"), 650); });
+  treeSet(name, "done"); setOrchStatus(`✅ ${name} returned`);
+}
+function graphSpawn(id) { const k = norm(id); if (!k) return null; const anchor = GRAPH.currentAgent || GRAPH.byId[norm("hcp_msl_engagement_agent")] || GRAPH.byId[norm("__root__")] || GRAPH.nodes.find((n) => n.kind === "root"); const i = GRAPH.dyn++, ang = (-90 + i * 41) * Math.PI / 180; const x = GRAPH.cx + 230 * Math.cos(ang), y = GRAPH.cy + 230 * Math.sin(ang); const node = { id, name: id, kind: "tool", group: anchor.group || 0, x, y, angle: -90 + i * 41 }; node.edge = mk("line", { class: "edge", x1: anchor.x, y1: anchor.y, x2: x, y2: y }); const g = mk("g", { class: `node tool g${node.group}` }); g.appendChild(mk("circle", { cx: x, cy: y, r: 12 })); placeLabel(g, node, 12); node.g = g; GRAPH.edgeG.appendChild(node.edge); GRAPH.nodeG.appendChild(g); GRAPH.byId[k] = node; (GRAPH.byName[k] = GRAPH.byName[k] || []).push(node); GRAPH.nodes.push(node); return node; }
+function graphReset() { GRAPH.nodes.forEach((n) => { if (n.edge) n.edge.classList.remove("active", "done"); if (n.g && n.kind !== "root") n.g.classList.remove("active", "done", "pulse"); }); document.querySelectorAll("#agentTree .tnode").forEach((el) => el.classList.remove("active", "done")); document.querySelectorAll("#agentTree .tgroup").forEach((g) => g.classList.add("collapsed")); graphHideTools(); GRAPH.currentAgent = null; graphBusy(false); setOrchStatus("Idle — pick a quick action to begin."); }
+function applyVB() { if (GRAPH.svg) GRAPH.svg.setAttribute("viewBox", `${GRAPH.vb.x} ${GRAPH.vb.y} ${GRAPH.vb.w} ${GRAPH.vb.h}`); }
+function zoomBy(f) { const v = GRAPH.vb, cx = v.x + v.w / 2, cy = v.y + v.h / 2; v.w /= f; v.h /= f; v.x = cx - v.w / 2; v.y = cy - v.h / 2; applyVB(); }
+$("zoomIn").addEventListener("click", () => zoomBy(1.2)); $("zoomOut").addEventListener("click", () => zoomBy(1 / 1.2)); $("zoomReset").addEventListener("click", () => { GRAPH.vb = { x: GRAPH.cx - 520, y: GRAPH.cy - 395, w: 1040, h: 790 }; applyVB(); });
+
+/* ===== Wiring ===== */
+function openOverlay(id) { $(id).classList.add("show"); } function closeOverlay(id) { $(id).classList.remove("show"); }
+document.querySelectorAll("[data-close]").forEach((el) => el.addEventListener("click", () => closeOverlay(el.getAttribute("data-close"))));
+document.querySelectorAll(".overlay").forEach((ov) => ov.addEventListener("click", (e) => { if (e.target === ov) ov.classList.remove("show"); }));
+function updateKolPreview() { $("kolPreview").textContent = buildKolQuery($("inpTA").value || "…", $("inpDisease").value || "…", $("inpProduct").value || "…"); }
+["inpTA", "inpDisease", "inpProduct"].forEach((id) => $(id).addEventListener("input", updateKolPreview));
+$("qaKol").addEventListener("click", () => { updateKolPreview(); openOverlay("kolOverlay"); });
+$("kolSubmit").addEventListener("click", () => { const q = buildKolQuery($("inpTA").value.trim(), $("inpDisease").value.trim(), $("inpProduct").value.trim()); closeOverlay("kolOverlay"); showTab("chat"); sendToAgent(q, { fromCard: "Identify & Build KOL Profile" }); });
+$("qaBrief").addEventListener("click", () => { showTab("chat"); sendToAgent(OUTREACH_QUERY, { fromCard: "Outreach & Precall Brief" }); });
+// ── Direct-invoke buttons for the wider agent suite (simulated orchestration) ──
+const AGENT_DESC = {
+  in_call_support_agent: "Provide live in-call support — surface MLR-cleared content on demand, give real-time coaching prompts, and capture notes, sentiment and AE signals.",
+  post_call_report_agent: "Document the call — transcribe and structure minutes, extract insights/actions/commitments, draft the field activity report, and route to CRM / MI / PV.",
+  insight_synthesis_agent: "Synthesise field intelligence — ingest all territory call reports, cluster signals, generate the territory heat map and build the insight taxonomy.",
+  strategy_feedback_agent: "Close the strategy loop — prioritise insights, frame them for each audience, draft the insight brief and route cross-functionally.",
+  advisory_board_agent: "Convene an advisory board — draft the concept, identify the optimal KOL panel, prepare MLR-cleared materials and capture the minutes.",
+  iis_rwe_agent: "Initiate an IIS / RWE programme — match the evidence gap to an investigator, generate the protocol concept, estimate budget and assemble the submission package.",
+  relationship_health_agent: "Monitor relationship health — track engagement cadence, score AQS health, flag lapsing relationships and surface AI coaching prompts.",
+};
+async function animateTool(id, callP, resP, ms = 650) {
+  graphToolCall(id); KPI.tools++; updateKpis(); log(`tool: ${id}`, "tool"); addTrace("tool", `🔧 ${id}`, callP, true);
+  await sleep(ms); graphToolResult(id); KPI.results++; updateKpis(); log(`result: ${id}`, "resp"); addTrace("tool", `✅ ${id}`, resP, true); addData(`${id} →`, resP); await sleep(250);
+}
+async function runAgentDemo(agentId) {
+  if (state.busy) { addMsg("system", "Please wait — still processing."); return; }
+  const meta = TREE.find((a) => a.id === agentId); if (!meta) return;
+  switchApp("agent"); showTab("chat");
+  state.busy = true; $("sendBtn").disabled = true; KPI.agents.clear(); KPI.tools = 0; KPI.results = 0; updateKpis();
+  const title = agentId.replace(/_/g, " ");
+  addMsg("system", `▶ ${agentId}`); log(`triggered: ${agentId}`, "sys");
+  addMsg("user", `Run the ${title}`); graphReset(); graphBusy(true); setOrchStatus("🧭 Orchestrating request…");
+  addTrace("prompt", `Prompt → ${agentId}`, { mode: "simulation", agent: agentId, cluster: meta.cluster }, true);
+  try {
+    await sleep(400);
+    graphActivateAgent(agentId);
+    addTrace("think", "🧠 reasoning", AGENT_DESC[agentId] || `Executing ${title}.`, true); log("reasoning", "think", agentId);
+    await sleep(450);
+    for (const t of meta.tools) await animateTool(t, { agent: agentId }, { status: "ok" });
+    addMsg("agent", AGENT_DESC[agentId] || `${title} run complete.`);
+  } catch (e) { addTrace("error", "Run failed", String(e && e.stack ? e.stack : e), true); }
+  finally { graphBusy(false); setOrchStatus("✅ Run complete."); state.busy = false; $("sendBtn").disabled = false; if (state.proxyUrl || state.token) loadDashboardStats(); else refreshDash(); }
+}
+document.querySelectorAll('.qa button[data-agent]').forEach((b) => b.addEventListener("click", () => runAgentDemo(b.dataset.agent)));
+function sendManual() { const v = $("chatInput").value.trim(); if (!v) return; $("chatInput").value = ""; $("chatInput").style.height = "40px"; showTab("chat"); sendToAgent(v); }
+$("sendBtn").addEventListener("click", sendManual);
+$("chatInput").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendManual(); } });
+$("chatInput").addEventListener("input", function () { this.style.height = "40px"; this.style.height = Math.min(this.scrollHeight, 110) + "px"; });
+$("clearBtn").addEventListener("click", () => { chatPane.innerHTML = ""; tracePane.innerHTML = ""; dataPane.innerHTML = ""; logsList.innerHTML = ""; KPI.agents.clear(); KPI.tools = KPI.results = KPI.events = 0; updateKpis(); $("logCount").textContent = "0 events"; $("kpiEvents").textContent = 0; graphReset(); greet(); });
+$("exportBtn").addEventListener("click", () => { const data = { exportedAt: new Date().toISOString(), kpis: { agents: [...KPI.agents], tools: KPI.tools, results: KPI.results, events: KPI.events }, chat: [...chatPane.querySelectorAll(".msg")].map((m) => m.textContent), log: [...logsList.querySelectorAll(".logline")].map((l) => l.textContent) }; const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "kol-session.json"; a.click(); });
+$("gearBtn").addEventListener("click", openAuth);
+function openAuth() { $("inpUser").value = state.userId; $("inpToken").value = state.token; $("inpProxy").value = state.proxyUrl || "http://localhost:8080"; $("inpHcpEmail").value = state.hcpEmail; refreshPill(); openOverlay("authOverlay"); }
+$("authSave").addEventListener("click", () => { state.userId = $("inpUser").value.trim() || state.userId; state.proxyUrl = $("inpProxy").value.trim(); state.token = $("inpToken").value.trim(); state.hcpEmail = $("inpHcpEmail").value.trim() || state.hcpEmail; refreshPill(); closeOverlay("authOverlay"); addMsg("system", state.proxyUrl ? `Connected via backend (${state.proxyUrl}).` : state.token ? `Connected as ${state.userId}.` : "Simulation mode active."); loadDashboardStats(); });
+$("useSim").addEventListener("click", () => { state.token = ""; state.proxyUrl = ""; refreshPill(); closeOverlay("authOverlay"); addMsg("system", "Simulation mode active."); loadDashboardStats(); });
+let tokenClient = null;
+function initGoogleSignIn() {
+  const btn = $("googleSignIn"), label = btn.querySelector("span") || btn;
+  if (!CONFIG.oauthClientId) { btn.disabled = true; btn.style.opacity = ".55"; btn.style.cursor = "not-allowed"; btn.textContent = "Sign in with Google (set client ID)"; return; }
+  if (!window.google || !google.accounts || !google.accounts.oauth2) { setTimeout(initGoogleSignIn, 400); return; }
+  tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CONFIG.oauthClientId, scope: CONFIG.oauthScope, callback: (r) => { if (r && r.access_token) { state.token = r.access_token; if ($("inpUser").value.trim()) state.userId = $("inpUser").value.trim(); refreshPill(); closeOverlay("authOverlay"); addMsg("system", `Signed in as ${state.userId}.`); } }, error_callback: () => addMsg("system", "Google Sign-In cancelled/failed.") });
+  btn.addEventListener("click", () => tokenClient.requestAccessToken({ prompt: "" }));
+}
+initGoogleSignIn();
+
+/* ===== Dashboard ===== */
+const MSL_TASKS = {
+  d1: ["Query all KOL databases (PubMed, ClinicalTrials.gov, congress, Veeva Link / H1 / OneKey, claims)", "Score candidates on 5 dimensions", "Rank by composite score", "Generate profile stubs", "Compile ranked KOL list"],
+  d2: ["Aggregate all 8 profile dimensions", "Structure profile (taxonomy)", "Score relationship maturity stage", "Generate artifacts (Word + Excel)"],
+  d3: ["Monitor HCP clinic schedule", "Identify 2–3 optimal slots", "Draft personalised outreach email", "Log outreach attempt in CRM", "Send via Outlook / CRM", "Monitor reply (7-day window)", "Confirm meeting → calendar block", "Follow-up nudge / congress re-route (if no reply)"],
+  d4: ["360° profile refresh", "MLR-cleared key messages (Vault)", "Competitor / guideline table", "Topic agenda + prior actions", "AECE statistical framing", "Synthetic HCP persona simulator", "Compile full pre-call brief"],
+};
+const PIPELINE = [
+  { id: "d1", name: "KOL Identification & Scoring", meta: "Discover & score KOLs", key: "identified" },
+  { id: "d2", name: "HCP 360° Profile Build", meta: "Aggregate 8 profile dimensions", key: "profiled" },
+  { id: "d3", name: "Outreach Scheduling", meta: "Draft & schedule HCP meetings", key: "outreach" },
+  { id: "d4", name: "Pre-Call Briefing", meta: "Assemble the pre-call brief", key: "briefs" },
+];
+const LAUNCH = {
+  d1: () => { switchApp("agent"); $("qaKol").click(); },
+  d2: () => { switchApp("agent"); showTab("chat"); sendToAgent("Build the HCP 360° profile for the identified KOLs", { fromCard: "HCP 360° Profile Build" }); },
+  d3: () => { switchApp("agent"); showTab("chat"); sendToAgent("Prepare an outreach plan and schedule HCP meetings", { fromCard: "Outreach Scheduling" }); },
+  d4: () => { switchApp("agent"); showTab("chat"); sendToAgent("Prepare the pre-call KOL brief", { fromCard: "Pre-Call Briefing" }); },
+};
+const DEMO_STATS = {
+  source: "demo", context: { therapeutic_area: "Hematology", disease: "Paroxysmal Nocturnal Hemoglobinuria", product: "Eculizumab" },
+  totals: { identified: 14, profiled: 9, outreach: 0, briefs: 0 },
+  byArea: [
+    { therapeutic_area: "Hematology", disease: "Paroxysmal Nocturnal Hemoglobinuria", hcp_count: 9 },
+    { therapeutic_area: "Hematology", disease: "Aplastic Anemia", hcp_count: 3 },
+    { therapeutic_area: "Cardiology", disease: "HFrEF", hcp_count: 2 },
+  ],
+};
+const DEMO_HCPS = [
+  { hcp: "Dr. Anita Rao", therapeutic_area: "Hematology", disease: "PNH", profiled: true, score: "0.91", rank: "Top 5%", rel_stage: "Engage", meeting_status: "Email drafted — pending MSL approval", channel: "Email → In-person", outreach_date: "Proposed: Tue 10:30 / Thu 14:00", outreach_duration: "30 min", response: "—", outreach: false, brief: false,
+    outreach_message: "Dear Dr. Rao,\n\nI read your recent work on PNH and complement inhibition with great interest. I would welcome the chance to share emerging Phase 3 data on Eculizumab relevant to your practice.\n\nWould Tuesday 10:30 or Thursday 14:00 work for a brief 30-minute discussion?\n\nBest regards,\nAjith Varghese, MSL" },
+  { hcp: "Dr. Liu Wen", therapeutic_area: "Hematology", disease: "PNH", profiled: true, score: "0.88", rank: "Top 8%", rel_stage: "Connect", meeting_status: "Email sent — awaiting HCP reply (4 days)", channel: "Email", outreach_date: "Sent Mon 09:12", outreach_duration: "—", response: "No reply (4 days) · follow-up due", outreach: false, brief: false,
+    outreach_message: "Dear Dr. Wen,\n\nFollowing your EHA presentation on PNH registry outcomes, I would value a short discussion on recent real-world evidence for Eculizumab.\n\nMight you have 30 minutes in the next two weeks?\n\nBest regards,\nAjith Varghese, MSL" },
+  { hcp: "Dr. Marco Bianchi", therapeutic_area: "Hematology", disease: "Aplastic Anemia", profiled: true, score: "0.84", rank: "Top 15%", rel_stage: "Identify", meeting_status: null, outreach: false, brief: false },
+  { hcp: "Dr. Sarah Chen", therapeutic_area: "Cardiology", disease: "HFrEF", profiled: true, score: "0.86", rank: "Top 10%", rel_stage: "Engage", meeting_status: "Meeting scheduled — Thu 14:00", channel: "In-person (UCSF Cardiology)", outreach_date: "Thu, 14:00–14:45", outreach_duration: "45 min", response: "Accepted", outreach: true, brief: true, brief_status: "drafted — pending MSL review",
+    outreach_message: "Dear Dr. Chen,\n\nThank you for accepting. Ahead of our meeting on Thursday at 14:00, I'll bring the latest HFrEF outcomes data and a short discussion guide.\n\nLooking forward to it.\n\nBest regards,\nAjith Varghese, MSL" },
+  { hcp: "Dr. Elena Fischer", therapeutic_area: "Hematology", disease: "PNH", profiled: true, score: "0.93", rank: "Top 3%", rel_stage: "Sustain", meeting_status: "Meeting completed — Mon 11:00", channel: "In-person (Charité Berlin)", outreach_date: "Mon, 11:00–11:45", outreach_duration: "45 min", response: "Accepted & met", outreach: true, brief: true, brief_status: "approved",
+    outreach_message: "Dear Dr. Fischer,\n\nThank you for accepting. As discussed, I've attached the PNH efficacy summary and AECE framing for the durability endpoint ahead of our visit on Monday at 11:00.\n\nLooking forward to it.\n\nBest regards,\nAjith Varghese, MSL",
+    brief_content: [
+      ["360° Profile Snapshot", "Charité Berlin · 62 PNH publications · 4 active trials (PI) · ASH & EHA faculty · guideline committee member."],
+      ["MLR-cleared Key Messages", "Eculizumab sustained LDH normalisation; transfusion independence in 64% at 26 weeks (label-consistent)."],
+      ["Competitor & Guideline Landscape", "Ravulizumab Q8W dosing; pegcetacoplan for suboptimal responders. Consistent with 2024 EHA PNH guidance."],
+      ["Discussion Agenda", "1) Durability data  2) Breakthrough-haemolysis management  3) RWE collaboration interest."],
+      ["AECE Statistical Framing", "Durability endpoint HR 0.42 (95% CI 0.30–0.58); NNT 3 for transfusion independence."],
+      ["Anticipated Questions (persona sim)", "Long-term meningococcal risk · switch criteria vs ravulizumab — model answers prepared."],
+      ["Discussion Guide", "Open with registry outcomes → bridge to durability → close on a potential IIS concept."],
+    ] },
+  { hcp: "Dr. Priya Nair", therapeutic_area: "Hematology", disease: "PNH", profiled: true, score: "0.87", rank: "Top 9%", rel_stage: "Connect", meeting_status: "Email sent — awaiting HCP reply (2 days)", channel: "Email", outreach_date: "Sent Wed 10:00", response: "No reply (2 days) · follow-up due", outreach: false, brief: false },
+  { hcp: "Dr. Tomas Vidal", therapeutic_area: "Hematology", disease: "Aplastic Anemia", profiled: true, score: "0.81", rank: "Top 20%", rel_stage: "Identify", meeting_status: null, outreach: false, brief: false },
+  { hcp: "Dr. Hana Kim", therapeutic_area: "Cardiology", disease: "HFrEF", profiled: true, score: "0.84", rank: "Top 14%", rel_stage: "Engage", meeting_status: "Meeting scheduled — Fri 09:30", channel: "In-person", outreach_date: "Fri, 09:30–10:00", outreach_duration: "30 min", response: "Accepted", outreach: true, brief: false },
+  { hcp: "Dr. Omar Haddad", therapeutic_area: "Cardiology", disease: "HFrEF", profiled: true, score: "0.79", rank: "Top 22%", rel_stage: "Identify", meeting_status: null, outreach: false, brief: false },
+  { hcp: "Dr. Brodsky RA", therapeutic_area: null, disease: null, profiled: false, meeting_status: null, outreach: false, brief: false },
+];
+const truthy = (v) => v === true || v === "true" || v === 1 || v === "1";
+let HCPS = [], SELECTED = 0;
+
+async function loadDashboardStats() {
+  let stats = DEMO_STATS, hcps = (CFG && CFG.subjects) || DEMO_HCPS;
+  if (CFG && CFG.mode === "msl" && state.proxyUrl) {
+    const base = state.proxyUrl.replace(/\/$/, "");
+    try {
+      const j = await (await fetch(base + "/stats")).json();
+      if (j && j.source === "bigquery") stats = j;
+      const h = await (await fetch(base + "/hcps")).json();
+      if (h && h.source === "bigquery" && Array.isArray(h.hcps)) hcps = h.hcps;
+    } catch (e) { /* fall back to demo */ }
+  }
+  HCPS = hcps;
+  // For demo/derived data, keep the tiles consistent with the HCP rows.
+  if (stats.source !== "bigquery") stats = { ...stats, totals: computeTotals(hcps) };
+  renderStats(stats); populateAreaFilter(); applyFilters(); renderQueue();
+}
+
+function countUp(el, target) {
+  const dur = 700, start = performance.now();
+  function tick(t) { const p = Math.min(1, (t - start) / dur); el.textContent = Math.round(target * (p * (2 - p))); if (p < 1) requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+}
+function renderStats(stats) {
+  // Each card = how many HCPs have COMPLETED that stage — i.e. exactly the green ✓ count in that
+  // column of the HCP Engagement table. "HCPs Identified" = all HCPs (= the HCP Engagement count).
+  const rc = stageCounts(HCPS);
+  const tile = (v, l, sub, g) => `<div class="stat ${g ? "g" : ""}"><div class="v">${v == null ? "—" : v}</div><div class="l">${l}</div>${sub ? `<div class="sub2">${sub}</div>` : ""}</div>`;
+  $("statRow").innerHTML = STAGES.map((s, idx) => tile(rc[s.key], s.tile, s.sub, idx === 0)).join("");
+  $("statRow").querySelectorAll(".stat .v").forEach((el) => { const n = parseInt(el.textContent, 10); if (!isNaN(n)) { el.textContent = "0"; countUp(el, n); } });
+}
+
+/* The full MSL–HCP 360° engagement flow — 12 process stages (shared by table, cards & journey). */
+const MSL_STAGES = [
+  { key: "d1", col: "Ident.", tile: "HCPs Identified", sub: "Discovered, Scored &amp; Ranked" },
+  { key: "d2", col: "360° Profile", tile: "Profiles Built", sub: "Aggregated Across 8 Dimensions" },
+  { key: "d3", col: "Outreach", tile: "Outreach Scheduled", sub: "Emails Sent · Meetings Booked" },
+  { key: "d4", col: "Pre-Call", tile: "Pre-Call Briefs", sub: "MLR-Cleared · Ready for Visit" },
+  { key: "d5", col: "In-Call", tile: "In-Call Support", sub: "Live MLR · Notes · Signals" },
+  { key: "d6", col: "Post-Call", tile: "Post-Call Reports", sub: "Minutes · CRM · MI/PV Routing" },
+  { key: "d7", col: "Insights", tile: "Insights Synthesised", sub: "Clustered · Heat Map" },
+  { key: "d8", col: "Strategy", tile: "Strategy Feedback", sub: "Prioritised · Routed" },
+  { key: "d9", col: "Advisory", tile: "Advisory Boards", sub: "Concept · Panel · Materials" },
+  { key: "d10", col: "IIS/RWE", tile: "IIS / RWE", sub: "Protocol · Budget · Package" },
+  { key: "d11", col: "Rel. Health", tile: "Relationship Health", sub: "Cadence · AQS · Alerts" },
+  { key: "d12", col: "Feedback", tile: "Feedback Loop", sub: "Closed-loop · Next Cycle" },
+];
+/* ===== Generic, config-driven dashboard layer =====
+   STAGES / TASKS / HCPS now reflect the ACTIVE role config (CFG). The MSL
+   role keeps its original rich, derived behaviour; every other Division+Role
+   is driven by config (defaults from dashboard-config.js, overridable via Excel). */
+let STAGES = MSL_STAGES;   // active stage metadata (tiles + table columns + journey names)
+let TASKS = MSL_TASKS;     // active per-stage task lists
+const MSL_IMPACT = [
+  { head: "KOL Identification", big: "↓ ~50%", dir: "green", d: "faster KOL discovery", s: "multi-source automated" },
+  { head: "Profile Build", big: "↓ ~60%", dir: "green", d: "less profiling time", s: "8 dimensions auto-aggregated" },
+  { head: "Outreach", big: "↑ 2–4×", dir: "blue", d: "more HCP touchpoints", s: "drafted & scheduled" },
+  { head: "Pre-Call Brief", big: "↑ +30%", dir: "blue", d: "brief quality score", s: "MLR pre-check automated" },
+  { head: "In-Call & Capture", big: "↑ ~3×", dir: "blue", d: "insights captured / call", s: "ambient NLP · MIR & AE flagged" },
+  { head: "Reporting", big: "↓ ~70%", dir: "green", d: "reduction in reporting", s: "8 hr/mo → 2 hr HITL" },
+  { head: "Insight → Strategy", big: "↓ ~40%", dir: "green", d: "insight-to-action time", s: "auto-synthesised & routed" },
+];
+// MSL config — preserves the existing experience exactly (mode: "msl" uses deriveStagesMSL + DEMO_HCPS).
+const MSL_CFG = {
+  mode: "msl", code: "MSL", div: "med",
+  title: "MSL Activity Dashboard",
+  subtitle: "Medical Science Liaisons (MSL) · MSL–HCP 360° Engagement Flow · live status",
+  subjectNoun: "HCP", subjectPlural: "HCPs",
+  colSubject: "HCP", colArea: "Therapeutic Area", colCategory: "Disease",
+  assistant: "Hi! I'm synced to the HCP you select on the left. Ask about their status, score, outreach email or brief — or type “approve” to action a pending request.",
+  footerLabel: "👤 Agentic MSL Employee",
+  stages: MSL_STAGES, tasks: MSL_TASKS, impact: MSL_IMPACT, subjects: DEMO_HCPS,
+  agents: { root: { l1: "hcp_msl", l2: "engagement" }, arch: MSL_ARCH, tree: MSL_TREE },
+};
+// All role configs, keyed by role code. MSL is bespoke; the rest are generated from the shared themes.
+const ROLE_CFG = { MSL: MSL_CFG };
+if (typeof DashboardConfig !== "undefined") {
+  Object.keys(DashboardConfig.ROLE_INDEX).forEach((code) => {
+    if (code === "MSL") return;
+    const c = DashboardConfig.buildRoleConfig(code);
+    if (c) { if (!c.tasks) c.tasks = {}; (c.stages || []).forEach((s) => { c.tasks[s.key] = s.tasks || []; }); ROLE_CFG[code] = c; }
+  });
+}
+let CFG = MSL_CFG;   // active config
+
+function tasksFromStages(stages) { const t = {}; (stages || []).forEach((s) => { t[s.key] = s.tasks || []; }); return t; }
+function normalizeSubjects(cfg) {
+  (cfg.subjects || []).forEach((su) => {
+    if (su.hcp == null) su.hcp = su.name;
+    if (su.therapeutic_area == null) su.therapeutic_area = su.area || "";
+    if (su.disease == null) su.disease = su.category || "";
+  });
+}
+function applyConfig(cfg) {
+  if (!cfg) cfg = MSL_CFG;
+  CFG = cfg;
+  STAGES = cfg.stages;
+  TASKS = cfg.tasks && Object.keys(cfg.tasks).length ? cfg.tasks : tasksFromStages(cfg.stages);
+  if (cfg.mode !== "msl") normalizeSubjects(cfg);
+  SELECTED = 0;
+  // Titles & labels
+  const set = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+  set("dashTitle", cfg.title);
+  set("dashRole", cfg.subtitle);
+  set("engageTitle", `${cfg.subjectPlural} Engagement`);
+  set("footRoleLabel", cfg.footerLabel);
+  const fs = $("fSearch"); if (fs) fs.placeholder = `🔍 Search ${cfg.subjectNoun}…`;
+  const dci = $("dcInput"); if (dci) dci.placeholder = `Ask about this ${cfg.subjectNoun}, or type “approve”…`;
+  // Footer impact metrics
+  renderFooterMetrics(cfg.impact);
+  // Reset the table header so stage columns rebuild for the new flow
+  const head = $("hcpHead");
+  if (head) { head.querySelectorAll("th.stg").forEach((t) => t.remove()); if (head.children[0]) head.children[0].textContent = cfg.colSubject; if (head.children[1]) head.children[1].textContent = cfg.colArea; if (head.children[2]) head.children[2].textContent = cfg.colCategory; }
+  // Reset assistant with the role-appropriate greeting
+  const box = $("dcMsgs"); if (box) { box.innerHTML = ""; dcAdd("bot", cfg.assistant); }
+  // Agent Workspace (tab 2): rebuild agents / graph / quick-actions + reset its console for this role
+  applyAgentConfig(cfg);
+  resetAgentConsole();
+  loadDashboardStats();
+}
+function resetAgentConsole() {
+  ["chatPane", "tracePane", "dataPane", "logsList"].forEach((id) => { const el = $(id); if (el) el.innerHTML = ""; });
+  if (typeof KPI !== "undefined") { KPI.agents.clear(); KPI.tools = 0; KPI.results = 0; KPI.events = 0; }
+  const lc = $("logCount"); if (lc) lc.textContent = "0 events";
+  if (typeof updateKpis === "function") updateKpis();
+  if (typeof graphReset === "function") graphReset();
+  if (typeof greet === "function") greet();
+}
+function renderFooterMetrics(impact) {
+  const wrap = $("footMetrics"); if (!wrap || !impact) return;
+  const hc = ["c-purple", "c-blue", "c-green"];
+  wrap.innerHTML = impact.map((m, i) =>
+    `<div class="fmetric"><div class="h ${hc[i % hc.length]}">${m.head}</div><div class="big c-${m.dir === "blue" ? "blue" : "green"}">${m.big}</div><div class="d">${m.d}</div><div class="s">${m.s}</div></div>`
+  ).join("");
+}
+function stageCounts(hcps) { const c = {}; STAGES.forEach((s) => (c[s.key] = 0)); (hcps || []).forEach((h) => deriveStages(h).forEach((s) => { if (s.state === "done") c[s.key]++; })); return c; }
+// Pipeline distribution: each HCP counted once at its CURRENT stage (first not-done; last if all done).
+// d2…d12 buckets therefore sum to the total — which equals "HCPs Identified".
+function stageDistribution(hcps) {
+  const c = {}; STAGES.forEach((s) => (c[s.key] = 0));
+  (hcps || []).forEach((h) => { const st = deriveStages(h); let i = st.findIndex((s) => s.state !== "done"); if (i < 0) i = st.length - 1; c[STAGES[i].key]++; });
+  return c;
+}
+/* deriveStages dispatches by active config mode: MSL uses the rich derivation
+   below; generic roles read the explicit per-subject journey from config/Excel. */
+function deriveStages(h) { return CFG && CFG.mode !== "msl" ? (h && h.journey ? h.journey : []) : deriveStagesMSL(h); }
+/* Derive each HCP's stage states (+ precise pending-approval / awaiting-response details). */
+function deriveStagesMSL(h) {
+  const prof = truthy(h.profiled);
+  const ms = String(h.meeting_status || "").toLowerCase();
+  let oState, oDetail;
+  if (!ms && truthy(h.outreach)) { oState = "done"; oDetail = "Meeting scheduled"; }
+  else if (!ms) { oState = "pending"; oDetail = "Outreach not yet started"; }
+  else if (/(approv|review|draft)/.test(ms)) { oState = "approval"; oDetail = h.meeting_status; }
+  else if (/(sent|await|reply|respons|follow|nudge)/.test(ms)) { oState = "awaiting"; oDetail = h.meeting_status; }
+  else if (/(schedul|confirm|book|done|complete)/.test(ms)) { oState = "done"; oDetail = h.meeting_status; }
+  else { oState = "progress"; oDetail = h.meeting_status; }
+  const bs = String(h.brief_status || "").toLowerCase();
+  let bState, bDetail;
+  if (truthy(h.brief) && /(approved|done|complete|final|ready|sent)/.test(bs)) { bState = "done"; bDetail = "Pre-call brief approved & ready"; }
+  else if (truthy(h.brief) && /(pending|review|draft|approval|await)/.test(bs)) { bState = "approval"; bDetail = h.brief_status; }
+  else if (truthy(h.brief)) { bState = "done"; bDetail = "Pre-call brief generated"; }
+  else if (oState === "done") { bState = "progress"; bDetail = "Generating pre-call brief…"; }
+  else { bState = "pending"; bDetail = "Awaits a confirmed meeting"; }
+  const scheduled = oState === "done";
+  const met = /(completed|met)\b/.test(ms);
+  const sustain = /sustain/i.test(h.rel_stage || "");
+  const inCall = met ? { s: "done", d: "Live support captured · notes & signals" } : scheduled ? { s: "progress", d: "Ready for the scheduled meeting" } : { s: "pending", d: "Awaits a confirmed meeting" };
+  const postCall = met ? { s: "done", d: "Minutes filed · routed to CRM / MI / PV" } : { s: "pending", d: "Awaits the meeting" };
+  const insight = met ? { s: "done", d: "Insights clustered into taxonomy" } : { s: "pending", d: "Awaits captured call data" };
+  const strategy = met ? { s: "progress", d: "Insights routed to medical strategy" } : { s: "pending", d: "Awaits synthesised insights" };
+  const advisory = sustain ? { s: "progress", d: "KOL panel under consideration" } : { s: "pending", d: "Triggered by strategy / evidence gap" };
+  const iis = sustain ? { s: "progress", d: "Evidence gap under review" } : { s: "pending", d: "Triggered by an evidence gap" };
+  const relhealth = prof ? { s: "progress", d: "Cadence & AQS continuously monitored" } : { s: "pending", d: "Begins once profiled" };
+  const feedback = met ? { s: "progress", d: "Next-cycle engagement topics proposed" } : { s: "pending", d: "Closes after downstream actions" };
+  const stages = [
+    { key: "d1", name: "KOL Identification & Scoring", state: "done", detail: "Added to ranked KOL list",
+      facts: [["Composite score", h.score || "—"], ["Rank", h.rank || "—"], ["Sources", "PubMed · Trials · Congress · Claims"]] },
+    { key: "d2", name: "HCP 360° Profile Build", state: prof ? "done" : "pending", detail: prof ? "360° profile built · 8 dimensions aggregated" : "Profile not yet built",
+      facts: [["Dimensions", prof ? "8 / 8 aggregated" : "0 / 8"], ["Artifacts", prof ? "Word + Excel" : "—"], ["Relationship stage", h.rel_stage || "—"]] },
+    { key: "d3", name: "Outreach Scheduling", state: oState, detail: oDetail,
+      facts: [["Channel", h.channel || "—"], ["Date / time", h.outreach_date || "—"], ["Duration", h.outreach_duration || "—"], ["Status", h.meeting_status || "Not started"], ["Response", h.response || "—"]] },
+    { key: "d4", name: "Pre-Call Briefing", state: bState, detail: bDetail,
+      facts: [["Package", "7-part pre-call brief"], ["Status", truthy(h.brief) ? (h.brief_status || "Generated") : bDetail], ["Approver", "MSL"]] },
+    { key: "d5", name: "In-Call Support & Capture", state: inCall.s, detail: inCall.d,
+      facts: [["Mode", "Ambient capture · on-demand MLR"], ["Signals", "MIR · AE · sentiment"]] },
+    { key: "d6", name: "Post-Call Documentation", state: postCall.s, detail: postCall.d,
+      facts: [["Outputs", "Minutes · field report"], ["Routing", "CRM · MI · PV"]] },
+    { key: "d7", name: "Insight Synthesis & Taxonomy", state: insight.s, detail: insight.d,
+      facts: [["Method", "NLP clustering · dedup"], ["Output", "Taxonomy · heat map"]] },
+    { key: "d8", name: "Medical Strategy Feedback", state: strategy.s, detail: strategy.d,
+      facts: [["Action", "Prioritise · frame · route"], ["Audience", "MA · Commercial · R&D"]] },
+    { key: "d9", name: "Advisory Board Convening", state: advisory.s, detail: advisory.d,
+      facts: [["Scope", "Concept · panel · materials"], ["HITL", "MAD · Legal · Compliance"]] },
+    { key: "d10", name: "IIS / RWE Initiation", state: iis.s, detail: iis.d,
+      facts: [["Scope", "Protocol · budget · package"], ["HITL", "MA · Finance · Compliance"]] },
+    { key: "d11", name: "Relationship Health Monitoring", state: relhealth.s, detail: relhealth.d,
+      facts: [["Signals", "Cadence · AQS · publications"], ["Stage", h.rel_stage || "—"]] },
+    { key: "d12", name: "Cyclical Feedback Loop", state: feedback.s, detail: feedback.d,
+      facts: [["Loop", "Insight → strategy → engagement"], ["Next", "Topics for next cycle"]] },
+  ];
+  // Sequential gate: a stage cannot activate until every earlier stage is done.
+  // The first not-yet-done stage keeps its live state (approval/awaiting/progress); all later stages stay pending.
+  let blocked = false;
+  for (const s of stages) {
+    if (blocked) { s.state = "pending"; continue; }
+    if (s.state === "done") continue;
+    blocked = true;
+  }
+  return stages;
+}
+function doneCount(state, n) {
+  if (state === "done") return n;
+  if (state === "awaiting") return Math.ceil(n * 0.65);
+  if (state === "approval") return Math.ceil(n * 0.4);
+  if (state === "progress") return Math.ceil(n * 0.3);
+  return 0;
+}
+/* Tile counts derived from the actual HCP rows — counts completed (green) milestones. */
+function computeTotals(hcps) {
+  let profiled = 0, outreach = 0, briefs = 0;
+  hcps.forEach((h) => { const s = deriveStages(h); if (s[1] && s[1].state === "done") profiled++; if (s[2] && s[2].state === "done") outreach++; if (s[3] && s[3].state === "done") briefs++; });
+  return { identified: hcps.length, profiled, outreach, briefs };
+}
+/* Agent runs feed the dashboard: a completed workflow advances HCPS and re-renders Tab 1. */
+const NEW_CANDIDATES = [
+  { hcp: "Dr. Sofia Marin", therapeutic_area: "Hematology", disease: "PNH", score: "0.90", rank: "Top 6%", rel_stage: "Identify", profiled: true },
+  { hcp: "Dr. Rajeev Menon", therapeutic_area: "Hematology", disease: "PNH", score: "0.83", rank: "Top 16%", rel_stage: "Identify", profiled: true },
+  { hcp: "Dr. Lena Novak", therapeutic_area: "Cardiology", disease: "HFrEF", score: "0.85", rank: "Top 11%", rel_stage: "Identify", profiled: true },
+];
+function onIdentifyComplete() {
+  const existing = new Set(HCPS.map((h) => h.hcp));
+  let added = 0;
+  NEW_CANDIDATES.forEach((c) => { if (!existing.has(c.hcp)) { HCPS.push({ ...c }); added++; } });
+  HCPS.forEach((h) => { if (!truthy(h.profiled)) { h.profiled = true; if (!h.therapeutic_area) { h.therapeutic_area = "Hematology"; h.disease = "PNH"; } } });
+  refreshDash();
+  toast(added ? `Dashboard updated · ${added} new KOLs identified & profiled` : "Dashboard refreshed · KOLs up to date");
+}
+function onOutreachComplete() {
+  const h = HCPS.find((x) => truthy(x.profiled) && !x.meeting_status && !truthy(x.outreach));
+  if (h) {
+    h.meeting_status = "Email drafted — pending MSL approval";
+    h.channel = h.channel || "Email → In-person";
+    h.outreach_date = h.outreach_date || "Proposed: Tue 10:30 / Thu 14:00";
+    h.outreach_duration = h.outreach_duration || "30 min";
+    h.outreach_message = h.outreach_message || `Dear ${h.hcp},\n\nI would value a brief discussion on recent data relevant to your practice.\n\nBest regards,\nAjith Varghese, MSL`;
+  }
+  const b = HCPS.find((x) => truthy(x.outreach) && !truthy(x.brief));
+  if (b) { b.brief = true; b.brief_status = "drafted — pending MSL review"; }
+  refreshDash();
+  toast("Dashboard updated · outreach & pre-call brief advanced");
+}
+const STLBL = { done: "Done", progress: "In Progress", approval: "Pending Approval", awaiting: "Awaiting Response", pending: "Pending" };
+function indFor(state, detail) {
+  const t = detail ? ` title="${String(detail).replace(/"/g, "'")}"` : "";
+  if (state === "done") return `<span class="ind done"${t}>✓</span>`;
+  if (state === "approval" || state === "progress") return `<span class="ind amber"${t}></span>`;
+  if (state === "awaiting") return `<span class="ind blue"${t}></span>`;
+  return `<span class="ind pend"${t}></span>`;
+}
+
+function buildHcpHeader() {
+  const head = $("hcpHead"); if (!head) return;
+  if (head.querySelector("th.stg")) return; // already built
+  head.insertAdjacentHTML("beforeend", STAGES.map((s) => `<th class="stg" title="${s.tile}">${s.col}</th>`).join(""));
+}
+function renderHcps(entries) {
+  buildHcpHeader();
+  $("hcpCount").textContent = entries.length ? `· ${entries.length} ${entries.length === 1 ? CFG.subjectNoun : CFG.subjectPlural}` : "";
+  $("hcpRows").innerHTML = entries.length ? entries.map(({ h, i }) => {
+    const s = deriveStages(h);
+    return `<tr data-idx="${i}"><td class="hcpname">${h.hcp || "—"}</td><td>${h.therapeutic_area || "—"}</td><td>${h.disease || "—"}</td>` +
+      s.map((st) => `<td>${indFor(st.state, st.detail)}</td>`).join("") + `</tr>`;
+  }).join("") : `<tr><td colspan="${3 + STAGES.length}" style="color:var(--muted);padding:14px">No HCPs match the filters.</td></tr>`;
+  $("hcpRows").querySelectorAll("tr[data-idx]").forEach((tr) => tr.addEventListener("click", () => selectHcp(+tr.dataset.idx)));
+}
+function populateAreaFilter() {
+  const areas = [...new Set(HCPS.map((h) => h.therapeutic_area).filter(Boolean))];
+  const sel = $("fArea"), cur = sel.value;
+  sel.innerHTML = `<option value="">All areas</option>` + areas.map((a) => `<option${a === cur ? " selected" : ""}>${a}</option>`).join("");
+}
+function currentFilter() {
+  const q = ($("fSearch").value || "").toLowerCase(), area = $("fArea").value, st = $("fStatus").value;
+  return HCPS.map((h, i) => ({ h, i })).filter(({ h }) => {
+    if (q && !String(h.hcp || "").toLowerCase().includes(q)) return false;
+    if (area && (h.therapeutic_area || "") !== area) return false;
+    if (st) {
+      const states = deriveStages(h).map((x) => x.state);
+      if (st === "completed") return states.every((x) => x === "done");
+      if (st === "approval") return states.includes("approval");
+      if (st === "awaiting") return states.includes("awaiting");
+      if (st === "progress") return !states.every((x) => x === "done") && states.some((x) => ["progress", "approval", "awaiting"].includes(x));
+    }
+    return true;
+  });
+}
+function applyFilters() {
+  const e = currentFilter(); renderHcps(e);
+  if (e.length) selectHcp(e.some((x) => x.i === SELECTED) ? SELECTED : e[0].i);
+  else { $("detailTitle").textContent = `${CFG.subjectNoun} Journey`; $("hcpDetail").innerHTML = `<div style="color:var(--muted);font-size:12px;padding:8px">No ${CFG.subjectNoun} matches the current filters.</div>`; }
+}
+["fSearch", "fArea", "fStatus"].forEach((id) => { const el = $(id); if (el) { el.addEventListener("input", applyFilters); el.addEventListener("change", applyFilters); } });
+
+function selectHcp(i) {
+  SELECTED = i;
+  $("hcpRows").querySelectorAll("tr").forEach((tr) => tr.classList.toggle("sel", +tr.dataset.idx === i));
+  const h = HCPS[i]; if (h) renderHcpDetail(h);
+  dcSyncContext();
+}
+
+/* ===== Dashboard assistant: synced to the selected HCP, approves via prompt, answers queries ===== */
+function dcSyncContext() { dcPromptForHcp(); }
+function dcAdd(role, text, ok) { const el = document.createElement("div"); el.className = "dc-msg " + role + (ok ? " ok" : ""); el.textContent = text; const box = $("dcMsgs"); box.appendChild(el); box.scrollTop = box.scrollHeight; return el; }
+function dcPending(h) { const st = deriveStages(h); let i = st.findIndex((s) => s.state === "approval"); if (i >= 0) return { i, s: st[i], kind: "approval" }; i = st.findIndex((s) => s.state === "awaiting"); return i >= 0 ? { i, s: st[i], kind: "awaiting" } : null; }
+function dcApprove() {
+  const h = HCPS[SELECTED]; if (!h) return "Select an HCP first.";
+  const pend = dcPending(h);
+  if (pend && pend.kind === "approval") { actOn(h, pend.i, "approve", ""); refreshDash(); return `✓ Approved — ${pend.s.name} for ${h.hcp}. The workflow will proceed.`; }
+  if (pend && pend.kind === "awaiting") { actOn(h, pend.i, "replied", ""); refreshDash(); return `✓ Logged response & scheduled — ${pend.s.name} for ${h.hcp}.`; }
+  const st = deriveStages(h), cur = st.find((s) => s.state !== "done") || st[st.length - 1];
+  return `Nothing is pending approval for ${h.hcp} (currently at “${cur.name}”).`;
+}
+function dcReject() {
+  const h = HCPS[SELECTED]; if (!h) return "Select an HCP first.";
+  const pend = dcPending(h);
+  if (pend && pend.kind === "approval") { actOn(h, pend.i, "reject", ""); refreshDash(); return `✗ Changes requested — ${pend.s.name} for ${h.hcp}. It will be redrafted.`; }
+  return `Nothing is awaiting your approval for ${h.hcp} to reject.`;
+}
+// When the selected HCP has a pending request, surface Approve / Request-changes buttons in chat.
+function dcPromptForHcp() {
+  const box = $("dcMsgs"); if (!box) return;
+  box.querySelectorAll(".dc-action").forEach((e) => e.remove());
+  const h = HCPS[SELECTED]; if (!h) return;
+  const pend = dcPending(h); if (!pend) return;
+  const isApp = pend.kind === "approval";
+  const el = document.createElement("div"); el.className = "dc-msg bot dc-action";
+  el.innerHTML = `<div>⚠ <b>${escHtml(pend.s.name)}</b> for ${escHtml(h.hcp)} — ${isApp ? "pending your approval" : "awaiting HCP response"}.<br><span style="color:var(--muted)">${escHtml(pend.s.detail || "")}</span></div>` +
+    `<div class="dc-acts">${isApp ? `<button class="dc-ok" data-act="approve">✓ Approve &amp; proceed</button><button class="dc-no" data-act="reject">✗ Request changes</button>` : `<button class="dc-ok" data-act="approve">✓ Response received</button>`}</div>`;
+  box.appendChild(el); box.scrollTop = box.scrollHeight;
+  el.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { const reply = b.dataset.act === "reject" ? dcReject() : dcApprove(); dcAdd("bot", reply, /^[✓]/.test(reply)); }));
+}
+function dcRespond(q) {
+  const h = HCPS[SELECTED];
+  if (!h) return "Select an HCP from the list on the left and I'll help with their engagement.";
+  const ql = q.toLowerCase(), st = deriveStages(h), pend = dcPending(h);
+  const cur = st.find((s) => s.state !== "done") || st[st.length - 1];
+  if (/\b(approve|approved|sign[- ]?off|go ahead|send it|looks good|proceed|ok to send)\b/.test(ql)) return dcApprove();
+  if (/\b(reject|request changes|changes|revise|redraft|hold|don'?t send)\b/.test(ql)) return dcReject();
+  if (/\b(status|where|stage|progress|next|what'?s|update)\b/.test(ql)) return `${h.hcp} is at “${cur.name}” — ${cur.detail}.${pend ? ` ⚠ ${pend.kind === "approval" ? "Pending your approval" : "Awaiting HCP response"}.` : ""}`;
+  if (/\b(email|draft|outreach|message)\b/.test(ql)) return h.outreach_message ? `Drafted outreach email for ${h.hcp}:\n\n${h.outreach_message}` : `No outreach email has been drafted yet for ${h.hcp}.`;
+  if (/\bbrief\b/.test(ql)) return truthy(h.brief) ? `Pre-call brief for ${h.hcp}: ${h.brief_status || "generated"}.` : `The pre-call brief for ${h.hcp} hasn't been generated yet.`;
+  if (/\b(score|rank|profile|who)\b/.test(ql)) return `${h.hcp} · score ${h.score || "—"} · ${h.rank || "—"} · ${h.therapeutic_area || "—"} / ${h.disease || "—"} · stage ${h.rel_stage || "—"}.`;
+  if (/\b(hi|hello|hey|help)\b/.test(ql)) return `Hi! I'm synced to ${h.hcp}. Ask about their status, score, outreach email or brief — or type “approve” to action a pending request.`;
+  return `For ${h.hcp}: ask about status, score, the outreach email or the brief — or type “approve” / “reject” to action a pending request.`;
+}
+function dcSend() {
+  const inp = $("dcInput"), q = inp.value.trim(); if (!q) return;
+  inp.value = ""; dcAdd("user", q);
+  const reply = dcRespond(q);
+  const isOk = /^[✓]/.test(reply);
+  setTimeout(() => dcAdd("bot", reply, isOk), 220);
+}
+$("dcSend").addEventListener("click", dcSend);
+$("dcInput").addEventListener("keydown", (e) => { if (e.key === "Enter") dcSend(); });
+dcAdd("bot", "Hi! I'm synced to the HCP you select on the left. Ask about their status, score, outreach email or brief — or type “approve” to action a pending request.");
+
+function renderHcpDetail(h) {
+  const stages = deriveStages(h);
+  $("detailTitle").textContent = `${CFG.subjectNoun} Journey — ${h.hcp || "—"}`;
+  const pend = stages.filter((s) => s.state === "approval" || s.state === "awaiting");
+  let alert;
+  if (pend.length) {
+    alert = `<div class="hcp-alert"><span>⚠</span><div>${pend.map((s) => `<div><b>${s.state === "approval" ? "Pending approval" : "Awaiting response"}</b> — ${s.name}: ${s.detail}</div>`).join("")}</div></div>`;
+  } else {
+    const allDone = stages.every((s) => s.state === "done");
+    alert = `<div class="hcp-alert none"><span>✓</span><div>${allDone ? "Journey complete — all stages done." : "On track — no approvals or responses pending."}</div></div>`;
+  }
+  const body = stages.map((s, i) => {
+    const icon = s.state === "done" ? "✓" : (i + 1);
+    const tasks = TASKS[s.key] || [], dc = doneCount(s.state, tasks.length);
+    let extra = "";
+    if (s.key === "d3" && h.outreach_message) {
+      const lbl = s.state === "approval" ? "Draft" : "Sent";
+      extra = `<div class="email-card"><div class="eh">✉ Outreach email to KOL <span class="estat">${lbl}</span></div><div class="ebody">${h.outreach_message}</div></div>`;
+    }
+    if (s.key === "d4" && h.brief_content) {
+      extra = `<div class="brief-doc">${h.brief_content.map((sec) => `<div class="brief-sec"><div class="bt">${sec[0]}</div><div class="bb">${sec[1]}</div></div>`).join("")}</div>`;
+    }
+    const open = ["approval", "awaiting", "progress"].includes(s.state) || (s.key === "d3" && h.outreach_message) || (s.key === "d4" && h.brief_content);
+    const facts = `<div class="jfacts">${s.facts.map((f) => `<div class="k">${f[0]}</div><div class="v">${f[1]}</div>`).join("")}</div>`;
+    const tHtml = `<div class="jtasks"><div class="jt-h">Process tasks</div><ul style="list-style:none;margin:0;padding:0">${tasks.map((tk, ti) => `<li class="${ti < dc ? "done" : ""}">${tk}</li>`).join("")}</ul></div>`;
+    return `<div class="step ${s.state}"><div class="dotwrap" data-i="${i}" title="Expand / collapse"><div class="dot">${icon}</div><span class="lchev">${open ? "▾" : "▸"}</span></div>` +
+      `<div class="sbody"><div class="shead"><div class="sleft"><div class="sname">${s.name}</div><div class="smeta">${s.detail || ""}</div></div><span class="stag ${s.state}">${STLBL[s.state] || s.state}</span></div>` +
+      `<div class="subwrap ${open ? "open" : ""}" id="jsub-${i}">${facts}${tHtml}${extra}</div></div></div>`;
+  }).join("");
+  $("hcpDetail").innerHTML = alert + body;
+  $("hcpDetail").querySelectorAll(".dotwrap").forEach((d) => d.addEventListener("click", () => { const sub = $("jsub-" + d.dataset.i), chev = d.querySelector(".lchev"); const isOpen = sub.classList.toggle("open"); chev.textContent = isOpen ? "▾" : "▸"; }));
+  $("hcpDetail").querySelectorAll(".jbtn").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); journeyAction(+b.dataset.i, b.dataset.act); }));
+}
+
+/* HITL action controls per actionable journey stage. */
+function stageActions(s, i) {
+  if (s.state === "done") return "";
+  let btns;
+  if (s.state === "approval") btns = `<button class="jbtn approve" data-i="${i}" data-act="approve">✓ Approve</button><button class="jbtn reject" data-i="${i}" data-act="reject">✗ Request changes</button>`;
+  else if (s.state === "awaiting") btns = `<button class="jbtn approve" data-i="${i}" data-act="replied">✓ Response received</button><button class="jbtn" data-i="${i}" data-act="followup">↻ Send follow-up</button>`;
+  else btns = `<button class="jbtn trigger" data-i="${i}" data-act="trigger">▶ Run in Agent</button>`;
+  btns += `<button class="jbtn" data-i="${i}" data-act="note">💬 Add note</button>`;
+  return `<div class="jactions"><textarea class="jcomment" placeholder="Add a comment / instruction…"></textarea><div class="jbtns">${btns}</div></div>`;
+}
+
+function toast(msg) {
+  let el = $("toast"); if (!el) { el = document.createElement("div"); el.id = "toast"; document.body.appendChild(el); }
+  el.textContent = msg; el.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove("show"), 2600);
+}
+
+function regate(journey) { let blocked = false; for (const s of journey) { if (blocked) { s.state = "pending"; continue; } if (s.state === "done") continue; blocked = true; } }
+function actOnGeneric(h, i, action, note) {
+  const j = h.journey || []; const s = j[i]; if (!s) return;
+  if (note) (h.notes = h.notes || []).push({ stage: s.name, text: note, t: nowStr() });
+  if (action === "approve" || action === "replied") { s.state = "done"; s.detail = `${s.name} complete`; }
+  else if (action === "reject") { s.state = "progress"; s.detail = `${s.name} — changes requested`; }
+  else if (action === "followup") { s.state = "awaiting"; s.detail = `${s.name} — follow-up sent`; }
+  regate(j);
+  toast(`${action === "reject" ? "Changes requested" : "Updated"} · ${h.hcp} · ${s.name}`);
+}
+function actOn(h, i, action, note) {
+  if (CFG && CFG.mode !== "msl") return actOnGeneric(h, i, action, note);
+  const s = deriveStages(h)[i], key = s.key;
+  if (note) (h.notes = h.notes || []).push({ stage: s.name, text: note, t: nowStr() });
+  if (action === "approve") {
+    if (key === "d3") { h.meeting_status = "Approved — email sent, awaiting reply"; h.response = "Sent ✓ " + nowStr(); }
+    else if (key === "d4") { h.brief = true; h.brief_status = "approved"; }
+    else if (key === "d2") h.profiled = true;
+    toast(`Approved · ${h.hcp} · ${s.name}`);
+  } else if (action === "reject") {
+    if (key === "d3") h.meeting_status = "Changes requested — redrafting email";
+    else if (key === "d4") h.brief_status = "changes requested — redrafting";
+    toast(`Changes requested · ${h.hcp} · ${s.name}`);
+  } else if (action === "replied") {
+    if (key === "d3") { h.meeting_status = "Reply received — meeting scheduled"; h.outreach = true; h.response = "Replied · scheduled"; }
+    toast(`Response logged · ${h.hcp}`);
+  } else if (action === "followup") {
+    h.meeting_status = "Follow-up sent — awaiting reply"; h.response = "Follow-up sent " + nowStr();
+    toast(`Follow-up sent · ${h.hcp}`);
+  }
+}
+function refreshDash() {
+  renderStats({ source: "demo", totals: computeTotals(HCPS), context: {} });
+  renderHcps(currentFilter()); selectHcp(SELECTED); renderQueue();
+}
+function journeyAction(i, action) {
+  const h = HCPS[SELECTED]; if (!h) return;
+  const s = deriveStages(h)[i];
+  const ta = document.querySelector(`#jsub-${i} .jcomment`), note = ta ? ta.value.trim() : "";
+  if (action === "trigger") {
+    const prompts = { d1: "Identify and score new KOLs", d2: `Build the HCP 360° profile for ${h.hcp}`, d3: `Prepare and schedule outreach for ${h.hcp}`, d4: `Generate the pre-call brief for ${h.hcp}` };
+    switchApp("agent"); showTab("chat"); sendToAgent(prompts[s.key] || `Run ${s.name} for ${h.hcp}`, { fromCard: `${s.name} · ${h.hcp}` });
+    return;
+  }
+  if (action === "note") { if (note) { (h.notes = h.notes || []).push({ stage: s.name, text: note, t: nowStr() }); toast("Note saved"); refreshDash(); } else toast("Enter a comment first"); return; }
+  actOn(h, i, action, note); refreshDash();
+}
+function queueAction(hi, si, action) { const h = HCPS[hi]; if (!h) return; SELECTED = hi; actOn(h, si, action, ""); refreshDash(); }
+function renderQueue() {
+  const list = $("queueList"); if (!list) return;
+  const items = [];
+  HCPS.forEach((h, hi) => deriveStages(h).forEach((s, si) => { if (s.state === "approval" || s.state === "awaiting") items.push({ h, hi, s, si }); }));
+  const badge = $("queueCount"); if (badge) { badge.textContent = items.length; badge.classList.toggle("zero", items.length === 0); }
+  list.innerHTML = items.length ? items.map(({ h, hi, s, si }) => {
+    const btns = s.state === "approval"
+      ? `<button class="jbtn approve" data-hi="${hi}" data-si="${si}" data-act="approve">✓ Approve</button><button class="jbtn reject" data-hi="${hi}" data-si="${si}" data-act="reject">✗ Changes</button>`
+      : `<button class="jbtn approve" data-hi="${hi}" data-si="${si}" data-act="replied">✓ Replied</button><button class="jbtn" data-hi="${hi}" data-si="${si}" data-act="followup">↻ Follow-up</button>`;
+    return `<div class="aq-item ${s.state}"><div class="aq-main"><div class="aq-hcp">${h.hcp}<span class="aq-stage">${s.name}</span></div><div class="aq-detail">${s.detail}</div></div><span class="stag ${s.state}">${STLBL[s.state]}</span><div class="aq-btns">${btns}</div></div>`;
+  }).join("") : `<div class="aq-empty">✓ No pending approvals or responses — all clear.</div>`;
+  list.querySelectorAll(".jbtn").forEach((b) => b.addEventListener("click", () => queueAction(+b.dataset.hi, +b.dataset.si, b.dataset.act)));
+}
+function switchLeftTab(name) {
+  document.querySelectorAll(".ltab").forEach((t) => t.classList.toggle("active", t.dataset.lt === name));
+  $("ltStatus").style.display = name === "status" ? "flex" : "none";
+  $("ltQueue").style.display = name === "queue" ? "flex" : "none";
+  renderQueue();
+}
+document.querySelectorAll(".ltab").forEach((t) => t.addEventListener("click", () => switchLeftTab(t.dataset.lt)));
+
+function switchApp(name) {
+  document.querySelectorAll(".atab").forEach((t) => t.classList.toggle("active", t.dataset.app === name));
+  $("viewDashboard").classList.toggle("active", name === "dashboard"); $("viewAgent").classList.toggle("active", name === "agent");
+  // Footer (value-metrics strip) only on the Dashboard; Clear/Export only on Agent.
+  document.querySelector("footer").style.display = name === "dashboard" ? "flex" : "none";
+  $("awControls").style.display = name === "agent" ? "inline-flex" : "none";
+  if (name === "dashboard") loadDashboardStats();
+}
+document.querySelectorAll(".atab").forEach((t) => t.addEventListener("click", () => switchApp(t.dataset.app)));
+$("refreshStats").addEventListener("click", loadDashboardStats);
+function applyRole() {
+  const full = state.roleName || ROLE_NAMES[state.role] || ROLE_NAMES.MSL;
+  $("roleLabel").textContent = `${full} (${state.role})`;
+  const brand = $("brandText"); if (brand) brand.textContent = `${full} · Agentic ${state.role} Workspace`;
+  // Resolve & apply the Division+Role configuration (drives titles, tiles, table, journey, impact).
+  applyConfig(ROLE_CFG[state.role] || MSL_CFG);
+}
+
+/* ===== Gateway: role selection → login → splash → app ===== */
+const ROLE_COLORS = { MSL: "#2f6bff", KOL: "#1fa97a", BM: "#f0a500", MM: "#7c5cff" };
+function selectRole(role, name, color) {
+  state.role = role;
+  state.roleName = name || ROLE_NAMES[role] || role;
+  const chip = $("loginRoleChip");
+  chip.querySelector(".dot").style.background = color || ROLE_COLORS[role] || "#2f6bff";
+  chip.querySelector("span:last-child").textContent = `${state.roleName} (${role})`;
+  $("lgErr").textContent = ""; $("lgUser").value = ""; $("lgPass").value = ""; $("lgCode").value = "";
+  $("roleScreen").classList.add("gone");
+  $("loginScreen").classList.remove("gone");
+  setTimeout(() => $("lgUser").focus(), 60);
+}
+function doLogin() {
+  const u = $("lgUser").value.trim(), p = $("lgPass").value, c = $("lgCode").value.trim();
+  if (u === "admin" && p === "admin" && c === "1234") {
+    // Marketing Manager → open the Campaign Brief Approval dashboard as its own full page.
+    if (state.role === "MM") { window.location.href = "campaign_brief_dashboard.html"; return; }
+    applyRole();
+    $("loginScreen").classList.add("gone");
+    const sp = $("splash");
+    const tEl = sp.querySelector(".splash-title"), sEl = sp.querySelector(".splash-sub");
+    if (tEl) tEl.textContent = state.roleName || ROLE_NAMES[state.role] || "Agentic Workspace";
+    if (sEl) sEl.textContent = `Cognizant · Agentic ${state.role} Workspace`;
+    sp.classList.remove("gone");
+    setTimeout(() => sp.classList.add("gone"), 3050);
+  } else {
+    $("lgErr").textContent = "Invalid username, password, or authenticator code.";
+    const card = $("loginScreen").querySelector(".gw-card");
+    card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake");
+  }
+}
+function logout() {
+  $("loginScreen").classList.add("gone");
+  const sp = $("splash"); if (sp) sp.classList.add("gone");
+  $("mmFrame").classList.add("gone"); $("mmBar").classList.add("gone"); $("mmFrame").setAttribute("src", "about:blank");
+  $("lgUser").value = ""; $("lgPass").value = ""; $("lgCode").value = ""; $("lgErr").textContent = "";
+  $("roleScreen").classList.remove("gone");
+}
+/* ===== LS Commercials Landscape: Divisions → Roles ===== */
+const DIVISIONS = [
+  { key: "sff", name: "Sales & Field Force", icon: "🧭", color: "linear-gradient(135deg,#4f8cff,#2f6bff)", roles: [
+    { code: "SR",  name: "Sales Representatives",       desc: "Field engagement & territory coverage" },
+    { code: "KAM", name: "Key Account Managers",        desc: "Strategic account relationships" },
+    { code: "RDM", name: "Regional/District Managers",  desc: "Lead & coach field teams" },
+    { code: "NSD", name: "National Sales Director",      desc: "National sales strategy & targets" },
+  ]},
+  { key: "mkt", name: "Marketing", icon: "📣", color: "linear-gradient(135deg,#7c5cff,#a78bfa)", roles: [
+    { code: "MM",  name: "Brand/Marketing Managers",    desc: "Plan content & outreach campaigns" },
+    { code: "PM",  name: "Product Managers",            desc: "Brand strategy & lifecycle" },
+    { code: "MKO", name: "Marketing Operations",        desc: "Campaign execution & ops" },
+    { code: "MLR", name: "MLR",                         desc: "Medical-legal-regulatory review" },
+    { code: "DM",  name: "Digital Marketing",           desc: "Omnichannel digital engagement" },
+    { code: "LEX", name: "Launch Excellence",           desc: "Launch readiness & execution" },
+  ]},
+  { key: "map", name: "Market Access & Pricing", icon: "💳", color: "linear-gradient(135deg,#1fa97a,#3fd6a0)", roles: [
+    { code: "PR",   name: "Payer Relations",       desc: "Payer strategy & negotiations" },
+    { code: "PC",   name: "Pricing & Contracting", desc: "Pricing models & contracts" },
+    { code: "HEOR", name: "HEOR",                  desc: "Health economics & outcomes research" },
+    { code: "TD",   name: "Trade & Distribution",  desc: "Channel & distribution management" },
+  ]},
+  { key: "med", name: "Medical Affairs", icon: "🔬", color: "linear-gradient(135deg,#0e8fb0,#36c5e0)", roles: [
+    { code: "MSL", name: "Medical Science Liaisons",   desc: "Drive scientific HCP engagement & 360° profiling" },
+    { code: "MI",  name: "Medical Information",        desc: "Respond to medical inquiries" },
+    { code: "PMC", name: "Publications & Med Comms",   desc: "Publications & scientific communications" },
+  ]},
+  { key: "coa", name: "Commercial Ops & Analytics", icon: "📊", color: "linear-gradient(135deg,#f0a500,#f5c542)", roles: [
+    { code: "CBI", name: "Commercial Analytics/BI", desc: "Insights & business intelligence" },
+    { code: "SO",  name: "Sales Operations",        desc: "Sales planning & operations" },
+    { code: "CE",  name: "Commercial Excellence",   desc: "Capability & performance enablement" },
+  ]},
+];
+let activeDivIdx = 0;
+function renderRoles(div) {
+  $("divName").textContent = `· ${div.name}`;
+  $("roleList").innerHTML = div.roles.map((r) =>
+    `<div class="role-pill" data-code="${r.code}" data-name="${r.name}"><b>${r.name}</b><span>${r.desc}</span><span class="rp-arrow">→</span></div>`
+  ).join("");
+  $("roleList").querySelectorAll(".role-pill").forEach((p) => {
+    p.addEventListener("click", () => {
+      $("roleList").querySelectorAll(".role-pill").forEach((x) => x.classList.remove("active"));
+      p.classList.add("active");
+      selectRole(p.dataset.code, p.dataset.name, div.color);
+    });
+  });
+}
+function renderDivisions() {
+  $("divList").innerHTML = DIVISIONS.map((d, i) =>
+    `<div class="div-item${i === activeDivIdx ? " active" : ""}" data-idx="${i}">
+       <span class="di-ic" style="background:${d.color}">${d.icon}</span>
+       <span class="di-tx"><b>${d.name}</b><span>${d.roles.length} roles</span></span>
+       <span class="di-chk">✓</span>
+     </div>`
+  ).join("");
+  $("divList").querySelectorAll(".div-item").forEach((el) => {
+    el.addEventListener("click", () => {
+      activeDivIdx = +el.dataset.idx;
+      $("divList").querySelectorAll(".div-item").forEach((x) => x.classList.remove("active"));
+      el.classList.add("active");
+      renderRoles(DIVISIONS[activeDivIdx]);
+    });
+  });
+}
+renderDivisions();
+renderRoles(DIVISIONS[activeDivIdx]);
+$("logoutBtn").addEventListener("click", logout);
+$("mmLogout").addEventListener("click", logout);
+$("loginBack").addEventListener("click", () => { $("loginScreen").classList.add("gone"); $("roleScreen").classList.remove("gone"); });
+$("loginBtn").addEventListener("click", doLogin);
+["lgUser", "lgPass", "lgCode"].forEach((id) => $(id).addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); }));
+
+/* ===== Init ===== */
+function greet() {
+  const name = (typeof CFG !== "undefined" && CFG && CFG.title) ? CFG.title.replace(/ Activity Dashboard$/, "") : "Agentic";
+  addMsg("agent", `Welcome to the ${name} agent console.\n\nLaunch a workflow from Quick Actions, or ask me directly. As I work, the orchestration graph shows each agent and tool in real time, the Trace tab captures the reasoning and tool inputs/outputs, and the Data tab gathers the structured results.`);
+  log("workspace ready", "sys");
+}
+// applyRole() resolves the Division+Role config and (via applyConfig) builds both tabs.
+applyRole(); refreshPill(); updateKpis();
+</script>
+</body>
+</html>
