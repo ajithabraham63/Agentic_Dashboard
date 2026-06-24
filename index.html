@@ -672,6 +672,7 @@
   .ov-item + .ov-item { border-top: 1px solid #eef2f7; }
   .ov-item b { display: block; font-size: 12.5px; font-weight: 600; color: #0a1f44; }
   .ov-item span { font-size: 10.5px; color: #94a3b8; text-transform: uppercase; letter-spacing: .03em; }
+  .ov-desc { font-size: 12px; color: #64748b; line-height: 1.45; }
 </style>
 </head>
 <body>
@@ -1772,7 +1773,7 @@ const MSL_IMPACT = [
 const MSL_CFG = {
   mode: "msl", code: "MSL", div: "med",
   title: "MSL Activity Dashboard",
-  subtitle: "Medical Science Liaisons (MSL) · MSL–HCP 360° Engagement Flow · live status",
+  subtitle: "Medical Science Liaisons (MSL) · MSL–HCP 360° Engagement Flow",
   subjectNoun: "HCP", subjectPlural: "HCPs",
   colSubject: "HCP", colArea: "Therapeutic Area", colCategory: "Disease",
   assistant: "Hi! I'm synced to the HCP you select on the left. Ask about their status, score, outreach email or brief — or type “approve” to action a pending request.",
@@ -1796,6 +1797,58 @@ if (typeof DashboardConfig !== "undefined") {
     const c = DashboardConfig.buildRoleConfig(code);
     if (c) { if (!c.tasks) c.tasks = {}; (c.stages || []).forEach((s) => { c.tasks[s.key] = s.tasks || []; }); ROLE_CFG[code] = c; }
   });
+}
+/* Brand/Marketing Managers — bespoke "day-in-the-life" Core Execution activities (overrides the generic Marketing config). */
+if (typeof DashboardConfig !== "undefined") {
+  const MM_STAGES = [
+    { key: "e1", col: "Brief", tile: "Campaign Briefs", sub: "Objectives, audiences, claims, channels", name: "Campaign Brief Development", tasks: ["Define objectives & KPIs", "Define target audiences", "Align claims & channels", "Set timelines with agencies"] },
+    { key: "e2", col: "Promo Review", tile: "Promo Reviews", sub: "Compliance, coordination, version control", name: "Promotional Review Readiness", tasks: ["Align on compliance", "Coordinate MLR review", "Manage version control", "Compile documentation"] },
+    { key: "e3", col: "Performance", tile: "Performance Reviews", sub: "KPIs, channel, funnel, ROI/ROAS", name: "Performance Analysis", tasks: ["Track KPIs & metrics", "Analyse channel performance", "Review funnel metrics", "Run ROI/ROAS analysis"] },
+    { key: "e4", col: "Sales", tile: "Sales Enablement", sub: "Train sales, gather feedback", name: "Sales Partnership", tasks: ["Train sales on materials", "Gather field feedback", "Enable pull-through"] },
+    { key: "e5", col: "Budget", tile: "Budgets Managed", sub: "Spend pacing, accruals, PO/invoice", name: "Budget & Forecast Management", tasks: ["Pace spend", "Manage accruals", "Approve PO / invoices", "Reallocate tactically"] },
+    { key: "e6", col: "Market", tile: "Market Insights", sub: "Competitive, HCP/patient, research", name: "Market Dynamics & Insights", tasks: ["Track competitive activity", "Gather HCP/patient insights", "Commission market research", "Monitor brand health"] },
+    { key: "e7", col: "Messaging", tile: "Content Aligned", sub: "Messaging house, content lifecycle", name: "Message & Content Consistency", tasks: ["Maintain core messaging house", "Update content", "Manage material lifecycle"] },
+  ];
+  const MM_SUBJECTS = [
+    ["PNH HCP Awareness Q3", "Eculizumab", "Email + Web", 5, "progress"],
+    ["HFrEF Patient Education", "Cardio Brand", "Social + Display", 2, "approval"],
+    ["Congress Activation — EHA", "Eculizumab", "Events + Email", 4, "awaiting"],
+    ["Rep-Triggered eDetailing", "Cardio Brand", "Field + Email", 6, "progress"],
+    ["Disease-State Hub Refresh", "Portfolio", "Web", 7, "done"],
+    ["Formulary Win Announce", "Eculizumab", "Email", 1, "progress"],
+    ["New Indication Teaser", "Cardio Brand", "Display", 0, "pending"],
+  ].map((s) => ({ name: s[0], area: s[1], category: s[2], journey: DashboardConfig.buildJourney(MM_STAGES, DashboardConfig.mk(MM_STAGES.length, s[3], s[4]), "Brand/Marketing Managers") }));
+  const MM_CFG = {
+    mode: "generic", code: "MM", div: "mkt",
+    title: "Brand/Marketing Managers Activity Dashboard",
+    subtitle: "Brand/Marketing Managers (MM) · Day-in-the-life · Core Execution",
+    subjectNoun: "Campaign", subjectPlural: "Campaigns",
+    colSubject: "Campaign", colArea: "Brand", colCategory: "Channel",
+    assistant: "Hi! I'm synced to the campaign you select on the left. Ask about its status or stage — or type “approve” to action a pending request.",
+    footerLabel: "Agentic Brand/Marketing Manager Employee",
+    stages: MM_STAGES, subjects: MM_SUBJECTS,
+    impact: [
+      { head: "Brief Dev", big: "↓ ~50%", dir: "green", d: "faster brief turnaround", s: "templated & AI-assisted" },
+      { head: "Promo Review", big: "↓ ~60%", dir: "green", d: "review cycle time", s: "pre-checked submissions" },
+      { head: "Performance", big: "↑ ~2×", dir: "blue", d: "insight cadence", s: "real-time dashboards" },
+      { head: "Sales Partnership", big: "↑ +30%", dir: "blue", d: "field pull-through", s: "enablement at scale" },
+      { head: "Budget", big: "↓ ~40%", dir: "green", d: "spend leakage", s: "automated tracking" },
+      { head: "Market Insights", big: "↑ ~3×", dir: "blue", d: "signal coverage", s: "continuous scanning" },
+      { head: "Content", big: "↑ +35%", dir: "blue", d: "message consistency", s: "central messaging house" },
+    ],
+    overviewGroups: [
+      { title: "Campaign Brief Development", icon: "📋", key: "e1", desc: "Objectives, target audiences, claims, channels, timelines with agencies" },
+      { title: "Promotional Review Readiness", icon: "✅", key: "e2", desc: "Compliance alignment, coordination, version control, documentation" },
+      { title: "Performance Analysis", icon: "📊", key: "e3", desc: "KPIs / metrics, channel performance, funnel metrics, ROI / ROAS analysis" },
+      { title: "Sales Partnership", icon: "🤝", key: "e4", desc: "Train sales on materials, gather feedback, enable pull-through" },
+      { title: "Budget & Forecast Management", icon: "💰", key: "e5", desc: "Spend pacing, accruals, PO / invoice approvals, tactical reallocations" },
+      { title: "Market Dynamics & Insights", icon: "🔎", key: "e6", desc: "Competitive activity, HCP / patient insights, market research, brand health" },
+      { title: "Message & Content Consistency", icon: "✉️", key: "e7", desc: "Core messaging house, content updates, lifecycle management of materials" },
+    ],
+  };
+  MM_CFG.tasks = {}; MM_STAGES.forEach((s) => { MM_CFG.tasks[s.key] = s.tasks; });
+  MM_CFG.agents = DashboardConfig.buildAgents(MM_CFG);
+  ROLE_CFG.MM = MM_CFG;
 }
 let CFG = MSL_CFG;   // active config
 
@@ -2273,12 +2326,18 @@ function renderOverview() {
   const groups = overviewGroups();
   wrap.innerHTML = groups.map((g, i) => {
     const c = OV_COLORS[i % OV_COLORS.length];
-    const items = (g.items || []).map((it) => `<div class="ov-item" data-key="${it.key}"><b>${it.name}</b>${it.sub ? `<span>${it.sub}</span>` : ""}</div>`).join("");
-    const firstKey = (g.items && g.items[0] && g.items[0].key) || "";
+    let inner, firstKey;
+    if (g.items && g.items.length) {
+      inner = `<div class="ov-items">${g.items.map((it) => `<div class="ov-item" data-key="${it.key}"><b>${it.name}</b>${it.sub ? `<span>${it.sub}</span>` : ""}</div>`).join("")}</div>`;
+      firstKey = g.items[0].key || "";
+    } else {
+      inner = g.desc ? `<div class="ov-desc">${g.desc}</div>` : "";
+      firstKey = g.key || "";
+    }
     return `<div class="ov-card" data-key="${firstKey}" tabindex="0">
       <div class="ov-ic" style="background:${c}">${g.icon || "▣"}</div>
       <div class="ov-name">${g.title}</div>
-      <div class="ov-items">${items}</div>
+      ${inner}
     </div>`;
   }).join("");
   wrap.querySelectorAll(".ov-item").forEach((el) => el.addEventListener("click", (e) => { e.stopPropagation(); openStage(el.dataset.key); }));
