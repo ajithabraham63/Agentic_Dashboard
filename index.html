@@ -32,8 +32,9 @@
   .atab:hover { color: #fff; background: rgba(255,255,255,.07); }
   .atab.active { color: #fff; background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.22); font-weight: 600; }
   .apptabs .spacer { flex: 1; }
-  .apptabs .hbtn { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.22); border-radius: 8px; padding: 7px 11px; font-size: 12.5px; cursor: pointer; margin-left: 6px; }
+  .apptabs .hbtn { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.22); border-radius: 8px; padding: 7px 11px; font-size: 12.5px; cursor: pointer; margin-left: 6px; height: 34px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; }
   .apptabs .hbtn:hover { border-color: #fff; }
+  .apptabs .hbtn.hbtn-icon { width: 34px; padding: 0; font-size: 16px; line-height: 1; }
   .apptabs .conn-pill { background: rgba(255,255,255,.12); color: #dce8fa; border: 1px solid rgba(255,255,255,.22); margin-left: 6px; }
   .apptabs .who { font-size: 12px; color: #b8cae4; display: flex; align-items: center; gap: 8px; margin-left: 10px; }
   .role-select { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.28); border-radius: 8px; padding: 6px 10px; font-size: 12px; font-family: var(--sans); cursor: pointer; }
@@ -75,6 +76,46 @@
   .statusbig { margin-left: auto; font-size: 12px; font-weight: 700; padding: 7px 15px; border-radius: 999px; }
   .statusbig.progress { background: rgba(199,125,0,.14); color: #a86700; } .statusbig.done { background: rgba(31,169,122,.14); color: #137a57; } .statusbig.idle { background: rgba(106,118,134,.14); color: #5a6675; }
   .stat-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 10px; }
+  .stat { cursor: pointer; transition: opacity .18s, box-shadow .18s, transform .18s; }
+  .stat.dim { opacity: .42; filter: saturate(.55); }
+  .stat.focus { box-shadow: 0 0 0 2px #2f6bff, 0 10px 24px rgba(47,107,255,.22); transform: translateY(-1px); }
+  .focus-bar { display: flex; align-items: center; gap: 10px; background: #eef4ff; border: 1px solid #cfe0ff; color: #1e3a8a; border-radius: 10px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; margin: 0 0 12px; }
+  .focus-bar .fb-clear { margin-left: auto; background: #fff; border: 1px solid #cfe0ff; color: #2f6bff; border-radius: 8px; padding: 5px 11px; cursor: pointer; font-weight: 600; font-size: 12px; }
+  .focus-bar .fb-clear:hover { background: #2f6bff; color: #fff; }
+  .step.focusstep { background: rgba(47,107,255,.06); border-radius: 10px; box-shadow: inset 3px 0 0 #2f6bff; }
+  .step.focusstep .sname { color: #2f6bff; }
+
+  /* ===== Expanded activity view ===== */
+  #activityView { flex: 1 1 auto; min-height: 0; overflow: auto; animation: riseIn .4s ease both; }
+  .act-head { display: flex; align-items: center; gap: 14px; margin: 2px 0 14px; }
+  .act-head .act-ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 18px; box-shadow: 0 5px 14px rgba(20,40,80,.2); flex: 0 0 auto; }
+  .act-head .act-back { margin-left: auto; align-self: center; background: #fff; border: 1px solid #cfe0ff; color: #2f6bff; border-radius: 9px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background .15s, box-shadow .15s; }
+  .act-head .act-back:hover { background: #2f6bff; color: #fff; box-shadow: 0 6px 16px rgba(47,107,255,.28); }
+  .act-head h3 { margin: 0; font-size: 20px; font-weight: 800; color: #0a1f44; }
+  .act-head p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+  .act-kpis { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .act-kpi { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 11px 18px; min-width: 110px; box-shadow: 0 4px 12px rgba(20,40,80,.05); }
+  .act-kpi .akv { font-size: 24px; font-weight: 800; color: #0a1f44; line-height: 1; }
+  .act-kpi .akl { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-top: 5px; }
+  .act-kpi.g .akv { color: var(--good); } .act-kpi.a .akv { color: #f0a500; } .act-kpi.b .akv { color: #2f6bff; } .act-kpi.pr .akv { color: #7c5cff; }
+  .act-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 14px; padding-bottom: 6px; }
+  .act-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 15px 16px; box-shadow: 0 4px 14px rgba(20,40,80,.06); border-left: 4px solid #cbd5e1; animation: riseIn .35s ease both; }
+  .act-card.approval { border-left-color: #f0a500; } .act-card.awaiting { border-left-color: #2f6bff; } .act-card.progress { border-left-color: #7c5cff; } .act-card.done { border-left-color: var(--good); }
+  .ac-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+  .ac-name { font-size: 14.5px; font-weight: 700; color: #0a1f44; display: flex; flex-direction: column; }
+  .ac-name span { font-size: 11px; font-weight: 500; color: var(--muted); margin-top: 2px; }
+  .ac-detail { font-size: 12.5px; color: #475569; margin-bottom: 8px; }
+  .ac-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .act-empty { grid-column: 1 / -1; color: var(--muted); font-size: 13px; padding: 24px; text-align: center; background: #fff; border: 1px dashed var(--border); border-radius: 12px; }
+  .seg-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  @media (max-width: 900px) { .seg-wrap { grid-template-columns: 1fr; } }
+  .seg-block { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; box-shadow: 0 4px 12px rgba(20,40,80,.05); }
+  .seg-block h4 { margin: 0 0 10px; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; }
+  .seg-row { display: grid; grid-template-columns: 130px 1fr 34px; align-items: center; gap: 10px; margin: 7px 0; }
+  .seg-l { font-size: 12.5px; color: #0a1f44; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .seg-bar { height: 9px; background: #eef2f7; border-radius: 99px; overflow: hidden; }
+  .seg-bar span { display: block; height: 100%; border-radius: 99px; transition: width .5s ease; }
+  .seg-c { font-size: 12.5px; font-weight: 700; color: #0a1f44; text-align: right; }
   .stat { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 6px 11px; box-shadow: 0 1px 3px rgba(20,30,50,.04); }
   .stat .v { font-size: 18px; font-weight: 700; color: var(--accent); } .stat.g .v { color: var(--good); }
   .stat .l { font-size: 10.5px; font-weight: 600; color: var(--text); margin-top: 1px; } .stat .sub2 { font-size: 8.5px; font-weight: 500; color: #7a8798; margin-top: 2px; }
@@ -610,11 +651,32 @@
   .jtasks li { font-size: 11px; color: var(--muted); padding: 3px 0 3px 16px; position: relative; line-height: 1.4; }
   .jtasks li::before { content: "○"; position: absolute; left: 0; font-size: 9px; top: 4px; color: #aeb8c6; }
   .jtasks li.done { color: #3a4452; } .jtasks li.done::before { content: "✓"; color: var(--good); }
+
+  /* ===== Activity Overview (landing screen after login) ===== */
+  #overviewScreen .gw-body { display: block; overflow: auto; padding: 26px 34px; place-items: stretch; }
+  .ov-wrap { max-width: 1240px; margin: 0 auto; }
+  .ov-head { position: relative; margin-bottom: 18px; }
+  .ov-head h2 { margin: 6px 0 2px; font-size: 23px; font-weight: 800; color: #0a1f44; }
+  .ov-head .gw-sub { margin: 0; text-align: left; color: #64748b; font-size: 13.5px; }
+  .ov-head .gw-back { margin-bottom: 8px; }
+  .ov-enter { position: absolute; top: 4px; right: 0; background: linear-gradient(100deg, #1e5bd6, #2f6bff); color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 20px rgba(47,107,255,.30); transition: transform .15s, box-shadow .15s; }
+  .ov-enter:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(47,107,255,.42); }
+  .ov-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; }
+  .ov-card { background: #fff; border: 1px solid #e3e9f2; border-radius: 16px; padding: 18px 18px 14px; cursor: pointer; box-shadow: 0 6px 18px rgba(20,40,80,.06); transition: transform .16s, border-color .16s, box-shadow .16s; animation: slideUp .35s ease both; }
+  .ov-card:hover { transform: translateY(-3px); border-color: #2f6bff; box-shadow: 0 14px 30px rgba(47,107,255,.16); }
+  .ov-card:focus-visible { outline: 2px solid #2f6bff; outline-offset: 2px; }
+  .ov-ic { width: 50px; height: 50px; border-radius: 14px; display: grid; place-items: center; color: #fff; font-size: 26px; box-shadow: 0 5px 14px rgba(20,40,80,.20); }
+  .ov-name { font-size: 16px; font-weight: 800; color: #0a1f44; margin: 13px 0 10px; line-height: 1.2; }
+  .ov-items { display: flex; flex-direction: column; }
+  .ov-item { padding: 9px 2px; cursor: pointer; }
+  .ov-item + .ov-item { border-top: 1px solid #eef2f7; }
+  .ov-item b { display: block; font-size: 12.5px; font-weight: 600; color: #0a1f44; }
+  .ov-item span { font-size: 10.5px; color: #94a3b8; text-transform: uppercase; letter-spacing: .03em; }
 </style>
 </head>
 <body>
-<!-- ===== Screen 1: Role selection ===== -->
-<div class="gateway" id="roleScreen">
+<!-- ===== Screen 2: Role selection ===== -->
+<div class="gateway gone" id="roleScreen">
   <div class="gw-header">
     <span class="gw-logo"><svg viewBox="0 0 52.1 44" xmlns="http://www.w3.org/2000/svg" aria-label="Cognizant"><defs><linearGradient id="cogA1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3d54ce"/><stop offset="100%" stop-color="#35cacf"/></linearGradient><linearGradient id="cogA2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#13457d"/><stop offset="100%" stop-color="#279698"/></linearGradient><linearGradient id="cogA3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#090086"/><stop offset="100%" stop-color="#2f96a9"/></linearGradient><linearGradient id="cogA4" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b62ca"/><stop offset="100%" stop-color="#93dfe3"/></linearGradient></defs><path d="M0 22 L15.3 44 L31.1 34.5 L22.2 22 Z" fill="url(#cogA1)"/><path d="M15.3 44 L37.1 44 L52.1 22 Z" fill="url(#cogA2)"/><path d="M15.3 0 L0 22 L22.2 22 L31.1 9.5 Z" fill="url(#cogA3)"/><path d="M15.3 0 L52.1 22 L37.1 0 Z" fill="url(#cogA4)"/></svg></span>
     <span class="gw-title">Cognizant — Agentic Workspace</span>
@@ -622,6 +684,7 @@
   </div>
   <div class="gw-body">
     <div class="gw-card gw-roles">
+      <button class="gw-back" id="roleBack">← Back to sign in</button>
       <h2>Select Your Role</h2>
       <p class="gw-sub">Choose your division, then the role within it to continue</p>
       <div class="rolepick">
@@ -638,8 +701,8 @@
   </div>
 </div>
 
-<!-- ===== Screen 2: Login ===== -->
-<div class="gateway gone" id="loginScreen">
+<!-- ===== Screen 1: Login (first page) ===== -->
+<div class="gateway" id="loginScreen">
   <div class="gw-header">
     <span class="gw-logo"><svg viewBox="0 0 52.1 44" xmlns="http://www.w3.org/2000/svg" aria-label="Cognizant"><defs><linearGradient id="cogB1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3d54ce"/><stop offset="100%" stop-color="#35cacf"/></linearGradient><linearGradient id="cogB2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#13457d"/><stop offset="100%" stop-color="#279698"/></linearGradient><linearGradient id="cogB3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#090086"/><stop offset="100%" stop-color="#2f96a9"/></linearGradient><linearGradient id="cogB4" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b62ca"/><stop offset="100%" stop-color="#93dfe3"/></linearGradient></defs><path d="M0 22 L15.3 44 L31.1 34.5 L22.2 22 Z" fill="url(#cogB1)"/><path d="M15.3 44 L37.1 44 L52.1 22 Z" fill="url(#cogB2)"/><path d="M15.3 0 L0 22 L22.2 22 L31.1 9.5 Z" fill="url(#cogB3)"/><path d="M15.3 0 L52.1 22 L37.1 0 Z" fill="url(#cogB4)"/></svg></span>
     <span class="gw-title">Cognizant — Agentic Workspace</span>
@@ -647,8 +710,7 @@
   </div>
   <div class="gw-body">
     <div class="gw-card gw-login">
-      <button class="gw-back" id="loginBack">← Change role</button>
-      <div class="gw-rolechip" id="loginRoleChip"><span class="dot"></span><span></span></div>
+      <div class="gw-rolechip" id="loginRoleChip" style="display:none"><span class="dot"></span><span></span></div>
       <h2>Sign in</h2>
       <p class="gw-sub">Enter your credentials and authenticator code</p>
       <div class="gw-field"><label>Username</label><div class="gw-input"><span class="gw-ic">👤</span><input id="lgUser" autocomplete="off" placeholder="Enter username" /></div></div>
@@ -656,6 +718,25 @@
       <div class="gw-field"><label>Authenticator code</label><div class="gw-input"><span class="gw-ic">🔑</span><input id="lgCode" inputmode="numeric" autocomplete="off" placeholder="Enter code" /></div></div>
       <div class="gw-err" id="lgErr"></div>
       <button class="gw-btn" id="loginBtn"><span>Sign in</span> <span class="gw-btn-arrow">→</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Screen 3: Activity Overview (landing after role selection) ===== -->
+<div class="gateway gone" id="overviewScreen">
+  <div class="gw-header">
+    <span class="gw-logo"><svg viewBox="0 0 52.1 44" xmlns="http://www.w3.org/2000/svg" aria-label="Cognizant"><defs><linearGradient id="cogO1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3d54ce"/><stop offset="100%" stop-color="#35cacf"/></linearGradient><linearGradient id="cogO2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#13457d"/><stop offset="100%" stop-color="#279698"/></linearGradient><linearGradient id="cogO3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#090086"/><stop offset="100%" stop-color="#2f96a9"/></linearGradient><linearGradient id="cogO4" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b62ca"/><stop offset="100%" stop-color="#93dfe3"/></linearGradient></defs><path d="M0 22 L15.3 44 L31.1 34.5 L22.2 22 Z" fill="url(#cogO1)"/><path d="M15.3 44 L37.1 44 L52.1 22 Z" fill="url(#cogO2)"/><path d="M15.3 0 L0 22 L22.2 22 L31.1 9.5 Z" fill="url(#cogO3)"/><path d="M15.3 0 L52.1 22 L37.1 0 Z" fill="url(#cogO4)"/></svg></span>
+    <span class="gw-title">Cognizant — Agentic Workspace</span>
+    <span class="gw-by"><b>Autonomous multi-agent</b> orchestration on Google Cloud</span>
+  </div>
+  <div class="gw-body">
+    <div class="ov-wrap">
+      <div class="ov-head">
+        <button class="gw-back" id="ovBack">← Change role</button>
+        <h2 id="ovTitle">Activity Overview</h2>
+        <p class="gw-sub" id="ovSub"></p>
+      </div>
+      <div class="ov-cards" id="ovCards"></div>
     </div>
   </div>
 </div>
@@ -685,10 +766,11 @@
       <button class="hbtn" id="clearBtn">🗑 Clear</button>
       <button class="hbtn" id="exportBtn">⬇ Export</button>
     </span>
-    <div class="who">Role: <span id="roleLabel" class="role-label">Medical Science Liaison (MSL)</span></div>
-    <button class="hbtn" id="refreshStats" title="Refresh">↻</button>
-    <button class="hbtn" id="gearBtn" title="Connection settings">⚙</button>
-    <button class="hbtn" id="logoutBtn" title="Log out"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+    <div class="who">Role: <span id="roleLabel" class="role-label" title="Change role" style="cursor:pointer">Medical Science Liaison (MSL)</span></div>
+    <button class="hbtn hbtn-icon" id="roleSwitchBtn" title="Change role (back to role selection)" aria-label="Change role">⇄</button>
+    <button class="hbtn hbtn-icon" id="refreshStats" title="Refresh">↻</button>
+    <button class="hbtn hbtn-icon" id="gearBtn" title="Connection settings">⚙</button>
+    <button class="hbtn hbtn-icon" id="logoutBtn" title="Log out"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
   </div>
 
   <!-- ===== TAB 1: Dashboard ===== -->
@@ -698,7 +780,8 @@
         <div><h2 id="dashTitle">MSL Activity Dashboard</h2><div class="role" id="dashRole">Medical Science Liaison (MSL) · MSL–HCP 360° Engagement Flow · live status</div></div>
       </div>
       <div class="stat-row" id="statRow"></div>
-      <div class="dash-2col grow">
+      <div class="focus-bar" id="focusBar" style="display:none"></div>
+      <div class="dash-2col grow" id="dash2col">
         <div class="panel scrollpanel">
           <h3><span id="engageTitle">HCP Engagement</span> <span id="hcpCount" style="font-weight:400;color:var(--muted);font-size:11px"></span></h3>
           <div class="ltabs">
@@ -739,6 +822,8 @@
           </div>
         </div>
       </div>
+      <!-- Expanded activity view (shown when a stage/activity is focused) -->
+      <div id="activityView" style="display:none"></div>
     </div>
   </div>
 
@@ -1530,7 +1615,7 @@ async function loadDashboardStats() {
   HCPS = hcps;
   // For demo/derived data, keep the tiles consistent with the HCP rows.
   if (stats.source !== "bigquery") stats = { ...stats, totals: computeTotals(hcps) };
-  renderStats(stats); populateAreaFilter(); applyFilters(); renderQueue();
+  renderStats(stats); populateAreaFilter(); applyFilters(); renderQueue(); updateDashboardMode();
 }
 
 function countUp(el, target) {
@@ -1542,9 +1627,115 @@ function renderStats(stats) {
   // Each card = how many HCPs have COMPLETED that stage — i.e. exactly the green ✓ count in that
   // column of the HCP Engagement table. "HCPs Identified" = all HCPs (= the HCP Engagement count).
   const rc = stageCounts(HCPS);
-  const tile = (v, l, sub, g) => `<div class="stat ${g ? "g" : ""}"><div class="v">${v == null ? "—" : v}</div><div class="l">${l}</div>${sub ? `<div class="sub2">${sub}</div>` : ""}</div>`;
-  $("statRow").innerHTML = STAGES.map((s, idx) => tile(rc[s.key], s.tile, s.sub, idx === 0)).join("");
+  const fk = state.focusStage;
+  const tile = (v, l, sub, g, key) => `<div class="stat ${g ? "g" : ""} ${fk ? (key === fk ? "focus" : "dim") : ""}" data-key="${key}" title="Focus on ${l}"><div class="v">${v == null ? "—" : v}</div><div class="l">${l}</div>${sub ? `<div class="sub2">${sub}</div>` : ""}</div>`;
+  $("statRow").innerHTML = STAGES.map((s, idx) => tile(rc[s.key], s.tile, s.sub, idx === 0, s.key)).join("");
   $("statRow").querySelectorAll(".stat .v").forEach((el) => { const n = parseInt(el.textContent, 10); if (!isNaN(n)) { el.textContent = "0"; countUp(el, n); } });
+  $("statRow").querySelectorAll(".stat").forEach((el) => el.addEventListener("click", () => setFocus(state.focusStage === el.dataset.key ? null : el.dataset.key)));
+}
+/* ===== Stage focus: scope the dashboard to one activity (set from an Overview card or a tile) ===== */
+function relevantToStage(h, key) { const s = deriveStages(h).find((x) => x.key === key); return s ? s.state !== "pending" : false; }
+function renderFocusBanner() {
+  // Banner intentionally hidden; the "Show all activities" control lives in the activity header.
+  const bar = $("focusBar"); if (bar) { bar.style.display = "none"; bar.innerHTML = ""; }
+}
+function setFocus(key) {
+  state.focusStage = key || null;
+  renderStats();
+  if (!state.focusStage) applyFilters();   // returning to the full dashboard
+  updateDashboardMode();
+}
+// Toggle between the full dashboard (no focus) and the expanded single-activity view (focused).
+function updateDashboardMode() {
+  const focused = !!state.focusStage;
+  const sr = $("statRow"), d2 = $("dash2col"), av = $("activityView");
+  if (sr) sr.style.display = focused ? "none" : "";
+  if (d2) d2.style.display = focused ? "none" : "";
+  if (av) av.style.display = focused ? "" : "none";
+  renderFocusBanner();
+  if (focused) renderActivityView();
+}
+function activityName(key) {
+  const meta = STAGES.find((s) => s.key === key) || {};
+  if (meta.name) return meta.name;
+  const sub = (HCPS || [])[0];
+  if (sub) { const s = deriveStages(sub).find((x) => x.key === key); if (s && s.name) return s.name; }
+  return meta.tile || key;
+}
+function actCardButtons(hi, st, si) {
+  if (st === "done") return "";
+  let btns;
+  if (st === "approval") btns = `<button class="jbtn approve acard-btn" data-hi="${hi}" data-si="${si}" data-act="approve">✓ Approve</button><button class="jbtn reject acard-btn" data-hi="${hi}" data-si="${si}" data-act="reject">✗ Request changes</button>`;
+  else if (st === "awaiting") btns = `<button class="jbtn approve acard-btn" data-hi="${hi}" data-si="${si}" data-act="replied">✓ Response received</button><button class="jbtn acard-btn" data-hi="${hi}" data-si="${si}" data-act="followup">↻ Follow-up</button>`;
+  else btns = `<button class="jbtn trigger acard-btn" data-hi="${hi}" data-si="${si}" data-act="trigger">▶ Run in Agent</button>`;
+  return `<div class="ac-actions">${btns}</div>`;
+}
+function actCardAction(hi, si, action) {
+  const h = HCPS[hi]; if (!h) return;
+  if (action === "trigger") { const s = deriveStages(h)[si]; switchApp("agent"); showTab("chat"); sendToAgent(`Run ${s.name} for ${h.hcp}`, { fromCard: `${s.name} · ${h.hcp}` }); return; }
+  SELECTED = hi; actOn(h, si, action, ""); refreshDash(); renderActivityView();
+}
+function segmentBy(subjects, field) {
+  const m = {}; subjects.forEach((h) => { const v = h[field] || "—"; m[v] = (m[v] || 0) + 1; });
+  const total = subjects.length || 1;
+  return Object.keys(m).map((label) => ({ label, count: m[label], pct: Math.round((m[label] / total) * 100) })).sort((a, b) => b.count - a.count);
+}
+function segBlock(title, rows, color) {
+  return `<div class="seg-block"><h4>${title}</h4>${rows.map((r) => `<div class="seg-row"><span class="seg-l" title="${r.label}">${r.label}</span><div class="seg-bar"><span style="width:${r.pct}%;background:${color}"></span></div><span class="seg-c">${r.count}</span></div>`).join("")}</div>`;
+}
+/* Expanded, activity-wise view: KPIs + (for identification) segmentation + a detail card per relevant subject. */
+function renderActivityView() {
+  const key = state.focusStage; const view = $("activityView"); if (!key || !view) return;
+  const idx = STAGES.findIndex((s) => s.key === key), meta = STAGES[idx] || {};
+  const color = OV_COLORS[idx % OV_COLORS.length];
+  const tasksAll = TASKS[key] || [];
+  const list = HCPS.map((h, i) => ({ h, i })).filter((x) => relevantToStage(x.h, key));
+  const by = { done: 0, approval: 0, awaiting: 0, progress: 0 };
+  list.forEach(({ h }) => { const s = deriveStages(h).find((x) => x.key === key); if (s && by[s.state] != null) by[s.state]++; });
+  const kpi = (v, l, cls) => `<div class="act-kpi ${cls || ""}"><div class="akv">${v}</div><div class="akl">${l}</div></div>`;
+  const plural = (CFG.subjectPlural || "items").toLowerCase();
+  let kpis, segHtml = "";
+  if (idx === 0) {
+    // Identification = the whole identified universe → segment it by area / category.
+    const areas = segmentBy(HCPS, "therapeutic_area"), cats = segmentBy(HCPS, "disease");
+    const profiled = HCPS.filter((h) => { const s = deriveStages(h).find((x) => x.key === (STAGES[1] && STAGES[1].key)); return s && s.state === "done"; }).length;
+    kpis = [
+      kpi(HCPS.length, `${plural} identified`, ""),
+      kpi(areas.length, `${(CFG.colArea || "area").toLowerCase()}s`, "b"),
+      kpi(cats.length, `${(CFG.colCategory || "type").toLowerCase()}s`, "pr"),
+      STAGES[1] ? kpi(profiled, "profiled", "g") : "",
+    ].join("");
+    segHtml = `<div class="seg-wrap">${segBlock(`By ${CFG.colArea || "Area"}`, areas, "#2f6bff")}${segBlock(`By ${CFG.colCategory || "Type"}`, cats, "#7c5cff")}</div>`;
+  } else {
+    kpis = [
+      kpi(list.length, `relevant ${plural}`, ""),
+      by.done ? kpi(by.done, "completed", "g") : "",
+      by.approval ? kpi(by.approval, "pending approval", "a") : "",
+      by.awaiting ? kpi(by.awaiting, "awaiting response", "b") : "",
+      by.progress ? kpi(by.progress, "in progress", "pr") : "",
+    ].join("");
+  }
+  const cards = list.map(({ h, i }) => {
+    const st = deriveStages(h); const si = st.findIndex((x) => x.key === key); const s = st[si] || {};
+    const dc = doneCount(s.state, tasksAll.length);
+    let extra = "";
+    if (key === "d3" && h.outreach_message) { const lbl = s.state === "approval" ? "Draft" : "Sent"; extra = `<div class="email-card"><div class="eh">✉ Outreach email <span class="estat">${lbl}</span></div><div class="ebody">${h.outreach_message}</div></div>`; }
+    if (key === "d4" && h.brief_content) { extra = `<div class="brief-doc">${h.brief_content.map((sec) => `<div class="brief-sec"><div class="bt">${sec[0]}</div><div class="bb">${sec[1]}</div></div>`).join("")}</div>`; }
+    const facts = `<div class="jfacts">${(s.facts || []).map((f) => `<div class="k">${f[0]}</div><div class="v">${f[1]}</div>`).join("")}</div>`;
+    const tHtml = tasksAll.length ? `<div class="jtasks"><div class="jt-h">Process tasks</div><ul style="list-style:none;margin:0;padding:0">${tasksAll.map((tk, ti) => `<li class="${ti < dc ? "done" : ""}">${tk}</li>`).join("")}</ul></div>` : "";
+    return `<div class="act-card ${s.state}">
+      <div class="ac-head"><div class="ac-name">${h.hcp || "—"}<span>${h.therapeutic_area || ""}${h.disease ? " · " + h.disease : ""}</span></div><span class="stag ${s.state}">${STLBL[s.state] || s.state}</span></div>
+      <div class="ac-detail">${s.detail || ""}</div>
+      ${facts}${tHtml}${extra}${actCardButtons(i, s.state, si)}
+    </div>`;
+  }).join("") || `<div class="act-empty">No ${(CFG.subjectPlural || "items").toLowerCase()} have reached this activity yet.</div>`;
+  view.innerHTML = `
+    <div class="act-head"><span class="act-ic" style="background:${color}">${idx + 1}</span><div class="act-head-tx"><h3>${activityName(key)}</h3><p>${meta.sub || ""}</p></div><button class="act-back" id="actBack">← Back</button></div>
+    <div class="act-kpis">${kpis}</div>
+    ${segHtml}
+    <div class="act-grid">${cards}</div>`;
+  const ab = $("actBack"); if (ab) ab.addEventListener("click", () => { renderOverview(); $("overviewScreen").classList.remove("gone"); });
+  view.querySelectorAll(".acard-btn").forEach((b) => b.addEventListener("click", () => actCardAction(+b.dataset.hi, +b.dataset.si, b.dataset.act)));
 }
 
 /* The full MSL–HCP 360° engagement flow — 12 process stages (shared by table, cards & journey). */
@@ -1588,6 +1779,14 @@ const MSL_CFG = {
   footerLabel: "👤 Agentic MSL Employee",
   stages: MSL_STAGES, tasks: MSL_TASKS, impact: MSL_IMPACT, subjects: DEMO_HCPS,
   agents: { root: { l1: "hcp_msl", l2: "engagement" }, arch: MSL_ARCH, tree: MSL_TREE },
+  overviewGroups: [
+    { title: "Identification & Profiling", icon: "🔍", items: [{ key: "d1", name: "KOL Identification & Scoring", sub: "identification" }, { key: "d2", name: "HCP 360° Profile Build", sub: "profiling" }] },
+    { title: "Outreach & Onboarding", icon: "📨", items: [{ key: "d3", name: "Outreach Scheduling", sub: "engagement initiation" }, { key: "d4", name: "Pre-Call Briefing", sub: "meeting preparation" }] },
+    { title: "Scientific Exchange", icon: "🔬", items: [{ key: "d5", name: "In-Call Support & Capture", sub: "live meeting support" }, { key: "d6", name: "Post-Call Documentation", sub: "CRM entry & routing" }] },
+    { title: "Insight Management", icon: "🧠", items: [{ key: "d7", name: "Insight Synthesis & Taxonomy", sub: "field intelligence" }, { key: "d8", name: "Medical Strategy Feedback", sub: "strategy loop closure" }] },
+    { title: "Collaboration", icon: "🤝", items: [{ key: "d9", name: "Advisory Board Convening", sub: "KOL collaboration" }, { key: "d10", name: "IIS / RWE Initiation", sub: "evidence generation" }] },
+    { title: "Continuity & Performance", icon: "♻️", items: [{ key: "d11", name: "Relationship Health Monitoring", sub: "cadence & lifecycle" }, { key: "d12", name: "Cyclical Feedback Loop", sub: "field → strategy" }] },
+  ],
 };
 // All role configs, keyed by role code. MSL is bespoke; the rest are generated from the shared themes.
 const ROLE_CFG = { MSL: MSL_CFG };
@@ -1615,6 +1814,7 @@ function applyConfig(cfg) {
   TASKS = cfg.tasks && Object.keys(cfg.tasks).length ? cfg.tasks : tasksFromStages(cfg.stages);
   if (cfg.mode !== "msl") normalizeSubjects(cfg);
   SELECTED = 0;
+  state.focusStage = null;   // new role → clear any activity focus
   // Titles & labels
   const set = (id, v) => { const el = $(id); if (el) el.textContent = v; };
   set("dashTitle", cfg.title);
@@ -1799,6 +1999,7 @@ function populateAreaFilter() {
 function currentFilter() {
   const q = ($("fSearch").value || "").toLowerCase(), area = $("fArea").value, st = $("fStatus").value;
   return HCPS.map((h, i) => ({ h, i })).filter(({ h }) => {
+    if (state.focusStage && !relevantToStage(h, state.focusStage)) return false;
     if (q && !String(h.hcp || "").toLowerCase().includes(q)) return false;
     if (area && (h.therapeutic_area || "") !== area) return false;
     if (st) {
@@ -1903,14 +2104,16 @@ function renderHcpDetail(h) {
     if (s.key === "d4" && h.brief_content) {
       extra = `<div class="brief-doc">${h.brief_content.map((sec) => `<div class="brief-sec"><div class="bt">${sec[0]}</div><div class="bb">${sec[1]}</div></div>`).join("")}</div>`;
     }
-    const open = ["approval", "awaiting", "progress"].includes(s.state) || (s.key === "d3" && h.outreach_message) || (s.key === "d4" && h.brief_content);
+    const isFocus = !!state.focusStage && s.key === state.focusStage;
+    const open = isFocus || ["approval", "awaiting", "progress"].includes(s.state) || (s.key === "d3" && h.outreach_message) || (s.key === "d4" && h.brief_content);
     const facts = `<div class="jfacts">${s.facts.map((f) => `<div class="k">${f[0]}</div><div class="v">${f[1]}</div>`).join("")}</div>`;
     const tHtml = `<div class="jtasks"><div class="jt-h">Process tasks</div><ul style="list-style:none;margin:0;padding:0">${tasks.map((tk, ti) => `<li class="${ti < dc ? "done" : ""}">${tk}</li>`).join("")}</ul></div>`;
-    return `<div class="step ${s.state}"><div class="dotwrap" data-i="${i}" title="Expand / collapse"><div class="dot">${icon}</div><span class="lchev">${open ? "▾" : "▸"}</span></div>` +
+    return `<div class="step ${s.state}${isFocus ? " focusstep" : ""}"><div class="dotwrap" data-i="${i}" title="Expand / collapse"><div class="dot">${icon}</div><span class="lchev">${open ? "▾" : "▸"}</span></div>` +
       `<div class="sbody"><div class="shead"><div class="sleft"><div class="sname">${s.name}</div><div class="smeta">${s.detail || ""}</div></div><span class="stag ${s.state}">${STLBL[s.state] || s.state}</span></div>` +
       `<div class="subwrap ${open ? "open" : ""}" id="jsub-${i}">${facts}${tHtml}${extra}</div></div></div>`;
   }).join("");
   $("hcpDetail").innerHTML = alert + body;
+  if (state.focusStage) { const fs = $("hcpDetail").querySelector(".step.focusstep"); if (fs) setTimeout(() => fs.scrollIntoView({ block: "start", behavior: "smooth" }), 60); }
   $("hcpDetail").querySelectorAll(".dotwrap").forEach((d) => d.addEventListener("click", () => { const sub = $("jsub-" + d.dataset.i), chev = d.querySelector(".lchev"); const isOpen = sub.classList.toggle("open"); chev.textContent = isOpen ? "▾" : "▸"; }));
   $("hcpDetail").querySelectorAll(".jbtn").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); journeyAction(+b.dataset.i, b.dataset.act); }));
 }
@@ -1964,6 +2167,7 @@ function actOn(h, i, action, note) {
 }
 function refreshDash() {
   renderStats({ source: "demo", totals: computeTotals(HCPS), context: {} });
+  renderFocusBanner();
   renderHcps(currentFilter()); selectHcp(SELECTED); renderQueue();
 }
 function journeyAction(i, action) {
@@ -2018,45 +2222,82 @@ function applyRole() {
   applyConfig(ROLE_CFG[state.role] || MSL_CFG);
 }
 
-/* ===== Gateway: role selection → login → splash → app ===== */
+/* ===== Gateway flow: login → role selection → activity overview → app ===== */
 const ROLE_COLORS = { MSL: "#2f6bff", KOL: "#1fa97a", BM: "#f0a500", MM: "#7c5cff" };
+const OV_COLORS = ["#2f6bff", "#1fa97a", "#7c5cff", "#f0a500", "#0891b2", "#e0508a"];
+function hideGateways() { ["loginScreen", "roleScreen", "overviewScreen", "splash"].forEach((id) => { const e = $(id); if (e) e.classList.add("gone"); }); }
+function showLogin() {
+  hideGateways();
+  $("mmFrame").classList.add("gone"); $("mmBar").classList.add("gone"); $("mmFrame").setAttribute("src", "about:blank");
+  $("lgErr").textContent = ""; $("lgUser").value = ""; $("lgPass").value = ""; $("lgCode").value = "";
+  $("loginScreen").classList.remove("gone");
+  setTimeout(() => $("lgUser").focus(), 60);
+}
+function showRoleScreen() { hideGateways(); $("roleScreen").classList.remove("gone"); }
+function showOverview() { renderOverview(); hideGateways(); $("overviewScreen").classList.remove("gone"); }
+// Splash plays right after a role is selected, then hands off to the activity overview.
+function playSplash(done) {
+  hideGateways();
+  const sp = $("splash");
+  if (!sp) { if (done) done(); return; }
+  const t = sp.querySelector(".splash-title"), s = sp.querySelector(".splash-sub");
+  if (t) t.textContent = state.roleName || ROLE_NAMES[state.role] || "Agentic Workspace";
+  if (s) s.textContent = `Cognizant · Agentic ${state.role} Workspace`;
+  sp.classList.remove("gone");
+  setTimeout(() => { sp.classList.add("gone"); if (done) done(); }, 2200);
+}
+function enterApp() { hideGateways(); switchApp("dashboard"); }
 function selectRole(role, name, color) {
   state.role = role;
   state.roleName = name || ROLE_NAMES[role] || role;
-  const chip = $("loginRoleChip");
-  chip.querySelector(".dot").style.background = color || ROLE_COLORS[role] || "#2f6bff";
-  chip.querySelector("span:last-child").textContent = `${state.roleName} (${role})`;
-  $("lgErr").textContent = ""; $("lgUser").value = ""; $("lgPass").value = ""; $("lgCode").value = "";
-  $("roleScreen").classList.add("gone");
-  $("loginScreen").classList.remove("gone");
-  setTimeout(() => $("lgUser").focus(), 60);
+  applyRole();              // resolve & apply the role config (drives both tabs + the overview)
+  playSplash(showOverview); // splash, then the activity overview
+}
+/* Activity Overview cards — one per configured stage, with progress derived from the subjects. */
+// Group the stages into phase cards. Roles can define cfg.overviewGroups; otherwise stages pair up.
+function overviewGroups() {
+  if (CFG.overviewGroups && CFG.overviewGroups.length) return CFG.overviewGroups;
+  const icons = ["🔍", "📨", "🔬", "🧠", "🤝", "♻️", "📊", "🚀"];
+  const groups = [];
+  for (let i = 0; i < STAGES.length; i += 2) {
+    const pair = STAGES.slice(i, i + 2);
+    groups.push({ title: pair.map((s) => s.col).join(" & "), icon: icons[(i / 2) % icons.length], items: pair.map((s) => ({ key: s.key, name: s.name || s.tile, sub: s.sub || "" })) });
+  }
+  return groups;
+}
+function openStage(key) { if (!key) return; state.focusStage = key; enterApp(); }
+function renderOverview() {
+  const wrap = $("ovCards"); if (!wrap) return;
+  $("ovTitle").textContent = `${(CFG.title || "").replace(/ Activity Dashboard$/, "")} — Activity Overview`;
+  $("ovSub").textContent = CFG.subtitle || "";
+  const groups = overviewGroups();
+  wrap.innerHTML = groups.map((g, i) => {
+    const c = OV_COLORS[i % OV_COLORS.length];
+    const items = (g.items || []).map((it) => `<div class="ov-item" data-key="${it.key}"><b>${it.name}</b>${it.sub ? `<span>${it.sub}</span>` : ""}</div>`).join("");
+    const firstKey = (g.items && g.items[0] && g.items[0].key) || "";
+    return `<div class="ov-card" data-key="${firstKey}" tabindex="0">
+      <div class="ov-ic" style="background:${c}">${g.icon || "▣"}</div>
+      <div class="ov-name">${g.title}</div>
+      <div class="ov-items">${items}</div>
+    </div>`;
+  }).join("");
+  wrap.querySelectorAll(".ov-item").forEach((el) => el.addEventListener("click", (e) => { e.stopPropagation(); openStage(el.dataset.key); }));
+  wrap.querySelectorAll(".ov-card").forEach((el) => {
+    el.addEventListener("click", () => openStage(el.dataset.key));
+    el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openStage(el.dataset.key); } });
+  });
 }
 function doLogin() {
   const u = $("lgUser").value.trim(), p = $("lgPass").value, c = $("lgCode").value.trim();
   if (u === "admin" && p === "admin" && c === "1234") {
-    // Marketing Manager → open the Campaign Brief Approval dashboard as its own full page.
-    if (state.role === "MM") { window.location.href = "campaign_brief_dashboard.html"; return; }
-    applyRole();
-    $("loginScreen").classList.add("gone");
-    const sp = $("splash");
-    const tEl = sp.querySelector(".splash-title"), sEl = sp.querySelector(".splash-sub");
-    if (tEl) tEl.textContent = state.roleName || ROLE_NAMES[state.role] || "Agentic Workspace";
-    if (sEl) sEl.textContent = `Cognizant · Agentic ${state.role} Workspace`;
-    sp.classList.remove("gone");
-    setTimeout(() => sp.classList.add("gone"), 3050);
+    showRoleScreen();
   } else {
     $("lgErr").textContent = "Invalid username, password, or authenticator code.";
     const card = $("loginScreen").querySelector(".gw-card");
     card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake");
   }
 }
-function logout() {
-  $("loginScreen").classList.add("gone");
-  const sp = $("splash"); if (sp) sp.classList.add("gone");
-  $("mmFrame").classList.add("gone"); $("mmBar").classList.add("gone"); $("mmFrame").setAttribute("src", "about:blank");
-  $("lgUser").value = ""; $("lgPass").value = ""; $("lgCode").value = ""; $("lgErr").textContent = "";
-  $("roleScreen").classList.remove("gone");
-}
+function logout() { showLogin(); }
 /* ===== LS Commercials Landscape: Divisions → Roles ===== */
 const DIVISIONS = [
   { key: "sff", name: "Sales & Field Force", icon: "🧭", color: "linear-gradient(135deg,#4f8cff,#2f6bff)", roles: [
@@ -2125,7 +2366,10 @@ renderDivisions();
 renderRoles(DIVISIONS[activeDivIdx]);
 $("logoutBtn").addEventListener("click", logout);
 $("mmLogout").addEventListener("click", logout);
-$("loginBack").addEventListener("click", () => { $("loginScreen").classList.add("gone"); $("roleScreen").classList.remove("gone"); });
+$("roleBack").addEventListener("click", showLogin);
+$("ovBack").addEventListener("click", showRoleScreen);
+$("roleSwitchBtn").addEventListener("click", showRoleScreen);
+$("roleLabel").addEventListener("click", showRoleScreen);
 $("loginBtn").addEventListener("click", doLogin);
 ["lgUser", "lgPass", "lgCode"].forEach((id) => $(id).addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); }));
 
@@ -2135,8 +2379,8 @@ function greet() {
   addMsg("agent", `Welcome to the ${name} agent console.\n\nLaunch a workflow from Quick Actions, or ask me directly. As I work, the orchestration graph shows each agent and tool in real time, the Trace tab captures the reasoning and tool inputs/outputs, and the Data tab gathers the structured results.`);
   log("workspace ready", "sys");
 }
-// applyRole() resolves the Division+Role config and (via applyConfig) builds both tabs.
-applyRole(); refreshPill(); updateKpis();
+// Pre-render the default (MSL) config behind the gateways, then show Login as the first page.
+applyRole(); refreshPill(); updateKpis(); showLogin();
 </script>
 </body>
 </html>
